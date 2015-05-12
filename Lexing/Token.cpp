@@ -111,7 +111,7 @@ std::string GA::Lexing::MathematicalOpToken::ToString() {
             return "MathOpToken[-]";
         case MathOperation::Times:
             return "MathOpToken[*]";
-        case MathOperation::Divided:
+        case MathOperation::Divide:
             return "MathOpToken[/]";
     }
 }

@@ -10,6 +10,7 @@
 
 namespace GA {
     namespace Lexing {
+        static const int SYMBOLTABLESKIPLEVELS = 5;//5 Skip-Level = skipping up to 16 entries
         class SymbolEntry {
         public:
             enum TYPE { UNDEFINED, INTEGER, FLOAT };

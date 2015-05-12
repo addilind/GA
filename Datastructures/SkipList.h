@@ -11,7 +11,7 @@
 namespace GA {
     namespace Datastructures {
         template<class T, int LevelCount>
-        class SkipList<T, LevelCount> {
+        class SkipList {
             class Node {
                 size_t mID;
                 Node *mNext[LevelCount];
@@ -67,7 +67,7 @@ namespace GA {
 
         template<class T, int LevelCount>
         size_t SkipList<T, LevelCount>::Insert(const T &value) {
-            std::unique_lock lock(mInsertMutex);
+            std::unique_lock<std::mutex> lock(mInsertMutex);
             auto id = mSize++;
 
             Node *newnode = new Node(id, value);
@@ -91,7 +91,7 @@ namespace GA {
         }
 
         template<class T, int LevelCount>
-        SkipList<T, LevelCount>::Node *SkipList<T, LevelCount>::GetNode(const size_t &id) {
+        typename SkipList<T, LevelCount>::Node *SkipList<T, LevelCount>::GetNode(const size_t &id) {
             Node *current = mFirst;
             size_t currentID = 0U;
             while (currentID != id) {

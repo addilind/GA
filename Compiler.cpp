@@ -6,7 +6,7 @@
 #include "Compiler.h"
 
 GA::Compiler::Compiler()
-    : mTokens(), mLexer(&mTokens){
+    : mTokens(), mSymbolTable(), mLexer(&mTokens, &mSymbolTable){
 
 }
 

@@ -14,7 +14,7 @@ namespace GA {
             enum TYPE {
                 IDENTIFIER, MATHEMATICALOP, ASSIGNMENTOP, INTEGERVAL, FLOATVAL, END
             };
-            enum MathOperation { Plus, Minus, Times, Divided};
+            enum MathOperation { Plus, Minus, Times, Divide };
         private:
             TYPE mType;
         public:

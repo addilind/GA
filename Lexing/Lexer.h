@@ -20,14 +20,15 @@ namespace GA {
         class Lexer {
         private:
             WIQueue<Token> *mOutput;
-            SkipList<SymbolEntry> *mSymbolTable;
+            SkipList<SymbolEntry, SYMBOLTABLESKIPLEVELS> *mSymbolTable;
         public:
-            Lexer(WIQueue<Token> *output, SkipList<SymbolEntry> *symbolTable);
+            Lexer(WIQueue<Token> *output, SkipList<SymbolEntry, SYMBOLTABLESKIPLEVELS> *symbolTable);
 
             void Feed(std::istream &input);
         private:
             void push(const TPtr& token);
             void readMathOp(std::istream &input);
+            void readAssignmentOp(std::istream &input);
             void readNumber(std::istream &input);
             void readIdentifier(std::istream &input);
         };
