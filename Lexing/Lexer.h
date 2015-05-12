@@ -4,18 +4,32 @@
 
 #pragma once
 
-#include "../WIQueue.h"
+#include "../Datastructures/WIQueue.h"
+#include "../Datastructures/SkipList.h"
 #include "Token.h"
+#include "SymbolEntry.h"
+
+using GA::Datastructures::WIQueue;
+using GA::Datastructures::SkipList;
+
 
 namespace GA {
     namespace Lexing {
+        typedef std::shared_ptr<GA::Lexing::Token> TPtr;
+
         class Lexer {
         private:
             WIQueue<Token> *mOutput;
+            SkipList<SymbolEntry> *mSymbolTable;
         public:
-            Lexer(WIQueue<Token> *output);
+            Lexer(WIQueue<Token> *output, SkipList<SymbolEntry> *symbolTable);
 
             void Feed(std::istream &input);
+        private:
+            void push(const TPtr& token);
+            void readMathOp(std::istream &input);
+            void readNumber(std::istream &input);
+            void readIdentifier(std::istream &input);
         };
     }
 }

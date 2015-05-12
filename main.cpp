@@ -14,6 +14,10 @@ int main() {
 
         cout << u8"Input code, NewLine + EOF (on Linux typically CTRL-D) to run:" << endl;
 
+        float test;
+        std::cin >> test;
+        std::cout << test << "\n-\n";
+
         std::cin >> std::noskipws;
         std::istream_iterator<char> it(std::cin);
         std::istream_iterator<char> end;

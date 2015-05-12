@@ -14,34 +14,64 @@ namespace GA {
             enum TYPE {
                 IDENTIFIER, MATHEMATICALOP, ASSIGNMENTOP, INTEGERVAL, FLOATVAL, END
             };
+            enum MathOperation { Plus, Minus, Times, Divided};
         private:
             TYPE mType;
-        protected:
+        public:
             Token();
             Token(TYPE type);
             virtual ~Token();
-        public:
             TYPE GetType();
+            virtual std::string ToString();
 
-            virtual std::string GetIdentifier() = 0;
+            size_t GetSymbolEntry();
+            MathOperation GetMathOp();
+            long GetIntValue();
+            double GetFloatValue();
         };
 
         class IdentifierToken : public Token {
-            std::string mIdentifier;
+            size_t mSymbolEntry;
         public:
             IdentifierToken();
-            IdentifierToken(const std::string& identifier);
+            IdentifierToken(size_t symbolEntry);
             virtual ~IdentifierToken();
-            virtual std::string GetIdentifier() override;
+            size_t GetSymbolEntry();
+            virtual std::string ToString() override;
         };
 
         class MathematicalOpToken : public Token {
-            std::string mIdentifier;
+        public:
+        private:
+            MathOperation mOperation;
         public:
             MathematicalOpToken();
-            MathematicalOpToken(const std::string& identifier);
-            virtual ~IdentifierToken();
-            virtual std::string GetIdentifier() override;
+            MathematicalOpToken(MathOperation operation);
+            virtual ~MathematicalOpToken();
+            MathOperation GetMathOp();
+            virtual std::string ToString() override;
+        };
+
+        class IntegerValToken : public Token {
+        private:
+            long mValue;
+        public:
+            IntegerValToken();
+            IntegerValToken(long value);
+            virtual ~IntegerValToken();
+            long GetIntValue();
+            virtual std::string ToString() override;
+        };
+
+        class FloatValToken : public Token {
+        private:
+            double mValue;
+        public:
+            FloatValToken();
+            FloatValToken(double value);
+            virtual ~FloatValToken();
+            double GetFloatValue();
+            virtual std::string ToString() override;
         };
     }
 }
