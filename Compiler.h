@@ -6,13 +6,17 @@
 
 #include "WIQueue.h"
 #include "Lexing/Lexer.h"
+#include "Lexing/Token.h"
 
 
 namespace GA {
     class Compiler {
-    private:
+        WIQueue<Lexing::Token> mTokens;
         Lexing::Lexer mLexer;
-        WIQueue<char> mTokens;
+    public:
+        Compiler();
+
+        void Compile(std::istream& source);
     };
 }
 

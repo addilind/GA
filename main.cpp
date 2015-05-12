@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iterator>
 #include <sstream>
+#include "Compiler.h"
 
 using std::cout;
 using std::cin;
@@ -16,9 +17,10 @@ int main() {
         std::cin >> std::noskipws;
         std::istream_iterator<char> it(std::cin);
         std::istream_iterator<char> end;
-        std::string input(it, end);
+        std::stringstream input(std::string(it, end));
 
-        cout << input << endl;
+        GA::Compiler compiler;
+        compiler.Compile(input);
 
         return 0;
     }
