@@ -7,16 +7,18 @@
 #include "Datastructures/WIQueue.h"
 #include "Lexing/Lexer.h"
 #include "Lexing/Token.h"
+#include "Parsing/Parser.h"
 
 using GA::Datastructures::WIQueue;
-using GA::Datastructures::SkipList;
+using GA::Lexing::SymbolTable;
 
 namespace GA {
     class Compiler {
         WIQueue<Lexing::Token> mTokens;
-        SkipList<Lexing::SymbolEntry, Lexing::SYMBOLTABLESKIPLEVELS> mSymbolTable;
+        SymbolTable mSymbolTable;
 
         Lexing::Lexer mLexer;
+        Parsing::Parser mParser;
     public:
         Compiler();
 

@@ -5,12 +5,12 @@
 #ifndef GA_SYMBOLENTRY_H
 #define GA_SYMBOLENTRY_H
 
+#include "../Datastructures/SkipList.h"
 #include <string>
 #include <memory>
 
 namespace GA {
     namespace Lexing {
-        static const int SYMBOLTABLESKIPLEVELS = 5;//5 Skip-Level = skipping up to 16 entries
         class SymbolEntry {
         public:
             enum TYPE { UNDEFINED, INTEGER, FLOAT };
@@ -25,12 +25,15 @@ namespace GA {
             SymbolEntry(const std::string& name, const double& value);
             ~SymbolEntry();
 
+            std::string GetName() const;
             TYPE GetType() const;
             void SetValue(const long& value);
             void SetValue(const double& value);
             long GetInteger() const;
             double GetFloat() const;
         };
+        static const int SYMBOLTABLESKIPLEVELS = 5;//5 Skip-Level = skipping up to 16 entries
+        typedef Datastructures::SkipList<SymbolEntry, SYMBOLTABLESKIPLEVELS> SymbolTable;
     }
 }
 

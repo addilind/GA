@@ -5,6 +5,8 @@
 #include <iostream>
 #include <memory>
 #include <cctype>
+#include <sstream>
+#include <algorithm>
 #include "Lexer.h"
 
 GA::Lexing::Lexer::Lexer(WIQueue<Token> * output, SkipList<SymbolEntry, SYMBOLTABLESKIPLEVELS> *symbolTable)
@@ -28,14 +30,27 @@ void GA::Lexing::Lexer::Feed(std::istream &input) {
             case ':':
                 readAssignmentOp(input);
                 continue;
+            case ';':
+                readStatementEnd(input);
+                continue;
+            case '(':
+            case ')':
+                readParenthesis(input);
+                continue;
             default:
                 break;
         }
 
-        if(isdigit(peekChar))
+        if(iswspace(peekChar) || peekChar == '\0') {
+            input >> peekChar;
+            continue;
+        }
+        else if(isdigit(peekChar))
             readNumber(input);
         else if(isalpha(peekChar))
             readIdentifier(input);
+        else
+            throw std::runtime_error("Unrecognized input char "+std::to_string(static_cast<int>(peekChar))+"!");
     }
     push(TPtr(new Token(Token::TYPE::END)));
 }
@@ -78,6 +93,25 @@ void GA::Lexing::Lexer::readAssignmentOp(std::istream &input) {
     push(TPtr(new Token(Token::TYPE::ASSIGNMENTOP)));
 }
 
+void GA::Lexing::Lexer::readStatementEnd(std::istream &input) {
+    char eosChar = 0;
+    input >> eosChar;
+    if(eosChar != ';')
+        throw std::runtime_error("Lexer: Tried to read end of statement, but next in stream is no semicolon!");
+    push(TPtr(new Token(Token::TYPE::ENDSTATEMENT)));
+}
+
+void GA::Lexing::Lexer::readParenthesis(std::istream &input) {
+    char parenthesisChar = 0;
+    input >> parenthesisChar;
+    if( parenthesisChar == '(')
+        push(TPtr(new Token(Token::TYPE::OPENPARENTHESIS)));
+    else if( parenthesisChar == ')')
+        push(TPtr(new Token(Token::TYPE::CLOSEPARENTHESIS)));
+    else
+        throw std::runtime_error("Lexer: Tried to read parenthesis, but next in stream is no parenthesis!");
+}
+
 void GA::Lexing::Lexer::readNumber(std::istream &input) {
     long value = 0;//Read integer part
     input >> value;
@@ -97,8 +131,35 @@ void GA::Lexing::Lexer::readNumber(std::istream &input) {
 }
 
 void GA::Lexing::Lexer::readIdentifier(std::istream &input) {
-    std::string identifier;
-    input >> identifier;
-    size_t symbolEntry = mSymbolTable->Insert(SymbolEntry(identifier));
+    std::stringstream identifier;
+    char buf = 0;
+    while(input && !input.eof()) {
+        input.get(buf);
+        if(iswspace(buf))
+            break;
+        switch (buf) {
+            case '+': case '-': case '*': case '/':
+            case ';': case ':':
+                input.putback(buf);
+                break;
+            default:
+                identifier << buf;
+                continue;
+        }
+        break;
+    }
+    std::string id = identifier.str();
+    size_t symbolEntry = 0U;
+
+    auto existingEntry = std::find_if(mSymbolTable->Begin(), mSymbolTable->End(),
+        [id](SymbolEntry* entry)->bool {
+            return entry->GetName() == id;
+        });
+    if(existingEntry == mSymbolTable->End())
+        symbolEntry = mSymbolTable->Insert(SymbolEntry(identifier.str()));
+    else
+        symbolEntry = existingEntry.GetCurrentEntryID();
+
     push(TPtr(new IdentifierToken(symbolEntry)));
 }
+

@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <mutex>
 #include <cmath>
+#include <iterator>
 
 namespace GA {
     namespace Datastructures {
@@ -33,6 +34,38 @@ namespace GA {
 
                 T *GetValue() { return &mValue; };
             };
+        public:
+            class Iterator : public std::iterator< std::forward_iterator_tag, T*> {
+                Node* current;
+                Iterator() : current(nullptr) {}
+                Iterator(Node* node) : current(node) {};
+                friend GA::Datastructures::SkipList<T, LevelCount>;
+            public:
+                Iterator operator++(){
+                    if(current == nullptr)
+                        throw std::runtime_error("SkipList Iterator: tried to increment end iterator");
+                    current = current->GetNext(0U);
+                    return *this;
+                }
+                Iterator operator++(int dummy){
+                    Iterator oldval(*this);
+                    (*this)++;
+                    return oldval;
+                }
+                T* operator*() {
+                    return current->GetValue();
+                }
+                bool operator==(const Iterator& other) {
+                    return current == other.current;
+                }
+                bool operator!=(const Iterator& other) {
+                    return current != other.current;
+                }
+                size_t GetCurrentEntryID() const {
+                    return current->GetID();
+                }
+            };
+        private:
 
             Node *mFirst;
             size_t mSize;
@@ -46,6 +79,9 @@ namespace GA {
             size_t Insert(const T &value);
 
             T *Get(const size_t &id);
+
+            Iterator Begin();
+            Iterator End();
 
         private:
             Node *GetNode(const size_t &id);
@@ -108,6 +144,16 @@ namespace GA {
                 currentID = current->GetID();
             }
             return current;
+        }
+
+        template<class T, int LevelCount>
+        typename SkipList<T, LevelCount>::Iterator SkipList<T, LevelCount>::Begin() {
+            return SkipList<T, LevelCount>::Iterator(mFirst->GetNext(0));
+        }
+
+        template<class T, int LevelCount>
+        typename SkipList<T, LevelCount>::Iterator SkipList<T, LevelCount>::End() {
+            return SkipList<T, LevelCount>::Iterator();
         }
     }
 }

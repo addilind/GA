@@ -50,3 +50,7 @@ double GA::Lexing::SymbolEntry::GetFloat() const {
         throw std::runtime_error("Tried to read non-float symbol as float!");
     return *static_cast<double*>(mValue.get());
 }
+
+std::string GA::Lexing::SymbolEntry::GetName() const {
+    return mName;
+}

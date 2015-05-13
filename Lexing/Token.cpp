@@ -5,9 +5,12 @@
 #include <stdexcept>
 #include "Token.h"
 
-GA::Lexing::Token::Token() : mType(TYPE::END) {}
+GA::Lexing::Token::Token() : mType(TYPE::END), mSource("<noinfo>") {}
 
-GA::Lexing::Token::Token(GA::Lexing::Token::TYPE type) : mType(type) {}
+GA::Lexing::Token::Token(GA::Lexing::Token::TYPE type) : mType(type), mSource("<noinfo>") {}
+
+GA::Lexing::Token::Token(GA::Lexing::Token::TYPE type, const std::string &source)
+        : mType(type), mSource(source) {}
 
 GA::Lexing::Token::~Token() {}
 
@@ -20,6 +23,9 @@ GA::Lexing::IdentifierToken::IdentifierToken()
 
 GA::Lexing::IdentifierToken::IdentifierToken(size_t symbolEntry)
         : Token(TYPE::IDENTIFIER), mSymbolEntry(symbolEntry) {}
+
+GA::Lexing::IdentifierToken::IdentifierToken(size_t symbolEntry, const std::string &source)
+        : Token(TYPE::IDENTIFIER, source), mSymbolEntry(symbolEntry) {}
 
 GA::Lexing::IdentifierToken::~IdentifierToken() {}
 
@@ -34,6 +40,11 @@ GA::Lexing::MathematicalOpToken::MathematicalOpToken()
 GA::Lexing::MathematicalOpToken::MathematicalOpToken(GA::Lexing::Token::MathOperation operation)
         : Token(TYPE::MATHEMATICALOP), mOperation(operation) {}
 
+GA::Lexing::MathematicalOpToken::MathematicalOpToken(GA::Lexing::Token::MathOperation operation,
+                                                     const std::string &source)
+        : Token(TYPE::MATHEMATICALOP, source), mOperation(operation) {}
+
+
 GA::Lexing::MathematicalOpToken::~MathematicalOpToken() {}
 
 GA::Lexing::Token::MathOperation GA::Lexing::MathematicalOpToken::GetMathOp() {
@@ -46,6 +57,9 @@ GA::Lexing::IntegerValToken::IntegerValToken()
 GA::Lexing::IntegerValToken::IntegerValToken(long value)
         : Token(TYPE::INTEGERVAL), mValue(value) {}
 
+GA::Lexing::IntegerValToken::IntegerValToken(long value, const std::string &source)
+        : Token(TYPE::INTEGERVAL, source), mValue(value) {}
+
 GA::Lexing::IntegerValToken::~IntegerValToken() {}
 
 long GA::Lexing::IntegerValToken::GetIntValue() {
@@ -57,6 +71,10 @@ GA::Lexing::FloatValToken::FloatValToken()
 
 GA::Lexing::FloatValToken::FloatValToken(double value)
         : Token(TYPE::FLOATVAL), mValue(value) {}
+
+GA::Lexing::FloatValToken::FloatValToken(double value, const std::string &source)
+        : Token(TYPE::FLOATVAL, source), mValue(value) {}
+
 
 GA::Lexing::FloatValToken::~FloatValToken() {}
 
@@ -91,35 +109,45 @@ double GA::Lexing::Token::GetFloatValue() {
 std::string GA::Lexing::Token::ToString() {
     switch (mType) {
         case TYPE::END:
-            return "EndToken";
+            return "EndToken@"+mSource;
+        case TYPE::ENDSTATEMENT:
+            return "EndStatementToken@"+mSource;
         case TYPE::ASSIGNMENTOP:
-            return "AssignmentOpToken";
+            return "AssignmentOpToken@"+mSource;
+        case TYPE::OPENPARENTHESIS:
+            return "OpenParenthesisToken@"+mSource;
+        case TYPE::CLOSEPARENTHESIS:
+            return "CloseParenthesisToken@"+mSource;
         default:
-            return "Invalid Token";
+            return "Invalid Token@"+mSource;
     }
 }
 
 std::string GA::Lexing::IdentifierToken::ToString() {
-    return "IdentifierToken["+std::to_string(mSymbolEntry)+"]";
+    return "IdentifierToken["+std::to_string(mSymbolEntry)+"]@"+mSource;
 }
 
 std::string GA::Lexing::MathematicalOpToken::ToString() {
     switch (mOperation){
         case MathOperation::Plus:
-            return "MathOpToken[+]";
+            return "MathOpToken[+]@"+mSource;
         case MathOperation::Minus:
-            return "MathOpToken[-]";
+            return "MathOpToken[-]@"+mSource;
         case MathOperation::Times:
-            return "MathOpToken[*]";
+            return "MathOpToken[*]@"+mSource;
         case MathOperation::Divide:
-            return "MathOpToken[/]";
+            return "MathOpToken[/]@"+mSource;
     }
 }
 
 std::string GA::Lexing::IntegerValToken::ToString() {
-    return "IntegerToken["+std::to_string(mValue)+"]";
+    return "IntegerToken["+std::to_string(mValue)+"]@"+mSource;
 }
 
 std::string GA::Lexing::FloatValToken::ToString() {
-    return "FloatToken["+std::to_string(mValue)+"]";
+    return "FloatToken["+std::to_string(mValue)+"]@"+mSource;
+}
+
+std::string GA::Lexing::Token::GetSource() {
+    return mSource;
 }

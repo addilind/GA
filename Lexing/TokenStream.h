@@ -2,16 +2,24 @@
 // Created by amueller on 5/12/15.
 //
 
-#ifndef GA_TOKENSTREAM_H
-#define GA_TOKENSTREAM_H
+#pragma once
+
+#include "Token.h"
+#include "../Datastructures/WIQueue.h"
+#include "Lexer.h"
 
 namespace GA {
     namespace Lexing {
         class TokenStream {
+            TPtr mPutbackToken;
+            WIQueue<Token> *mInput;
+        public:
+            TokenStream(WIQueue<Token> *input);
+            ~TokenStream();
 
+            TPtr Get();
+            void PutBack(TPtr token);
         };
     }
 }
 
-
-#endif //GA_TOKENSTREAM_H
