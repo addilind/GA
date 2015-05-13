@@ -31,6 +31,7 @@ namespace GA {
             void SetValue(const double& value);
             long GetInteger() const;
             double GetFloat() const;
+            std::shared_ptr<void> GetValue() const;
         };
         static const int SYMBOLTABLESKIPLEVELS = 5;//5 Skip-Level = skipping up to 16 entries
         typedef Datastructures::SkipList<SymbolEntry, SYMBOLTABLESKIPLEVELS> SymbolTable;

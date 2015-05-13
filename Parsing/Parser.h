@@ -16,6 +16,16 @@ using GA::Lexing::TPtr;
 
 namespace GA {
     namespace Parsing {
+        struct InterpretResult {
+        public:
+            enum TYPE { VOID, INTEGER, FLOAT };
+            TYPE Type;
+            std::shared_ptr<void> Value;
+            InterpretResult() : Type(TYPE::VOID), Value(nullptr) {}
+            InterpretResult(long value) : Type(TYPE::INTEGER), Value(new long(value)) {}
+            InterpretResult(double value) : Type(TYPE::FLOAT), Value(new double(value)) {}
+        };
+
         class Parser {
             TokenStream mTokenStream;
             SymbolTable *mSymbolTable;
@@ -24,6 +34,13 @@ namespace GA {
             virtual ~Parser();
 
             void Run();
+        private:
+            InterpretResult start();
+            InterpretResult expression();
+            InterpretResult expression2();
+            InterpretResult term();
+            InterpretResult term2();
+            InterpretResult factor();
         };
     }
 }

@@ -45,10 +45,15 @@ void GA::Lexing::Lexer::Feed(std::istream &input) {
             input >> peekChar;
             continue;
         }
-        else if(isdigit(peekChar))
+        else if(isdigit(peekChar) || peekChar == '.')
             readNumber(input);
         else if(isalpha(peekChar))
             readIdentifier(input);
+        else if(peekChar == '#') {
+            do {
+                input.get(peekChar);
+            } while(input && !input.eof() && peekChar != '\n');
+        }
         else
             throw std::runtime_error("Unrecognized input char "+std::to_string(static_cast<int>(peekChar))+"!");
     }
@@ -56,7 +61,7 @@ void GA::Lexing::Lexer::Feed(std::istream &input) {
 }
 
 void GA::Lexing::Lexer::push(const GA::Lexing::TPtr &token) {
-    std::cout << "Pushing " << token->ToString() << "\n";
+    //std::cout << "Pushing " << token->ToString() << "\n";
 
     mOutput->Push(token);
 }

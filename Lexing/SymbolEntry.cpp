@@ -54,3 +54,7 @@ double GA::Lexing::SymbolEntry::GetFloat() const {
 std::string GA::Lexing::SymbolEntry::GetName() const {
     return mName;
 }
+
+std::shared_ptr<void> GA::Lexing::SymbolEntry::GetValue() const {
+    return mValue;
+}
