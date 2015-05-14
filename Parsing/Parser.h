@@ -24,6 +24,16 @@ namespace GA {
             InterpretResult() : Type(TYPE::VOID), Value(nullptr) {}
             InterpretResult(long value) : Type(TYPE::INTEGER), Value(new long(value)) {}
             InterpretResult(double value) : Type(TYPE::FLOAT), Value(new double(value)) {}
+            long GetInt() {
+                if(Type != TYPE::INTEGER)
+                    throw std::runtime_error("Tried to get int value of non-int InterpretResult!");
+                return *static_cast<long*>(Value.get());
+            }
+            double GetFloat() {
+                if(Type != TYPE::FLOAT)
+                    throw std::runtime_error("Tried to get float value of non-float InterpretResult!");
+                return *static_cast<double*>(Value.get());
+            }
         };
 
         class Parser {
@@ -35,6 +45,7 @@ namespace GA {
 
             void Run();
         private:
+            void DebugNotifyStep(const std::string& step);
             InterpretResult start();
             InterpretResult expression();
             InterpretResult expression2();

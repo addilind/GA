@@ -22,7 +22,7 @@ void GA::Parsing::Parser::Run() {
         switch (nextTok->GetType())
         {
             case Token::TYPE::END:
-                std::cout << "Goodbye!\n";
+                std::cout << "Finished\n";
                 return;
             case Token::TYPE::ENDSTATEMENT:
                 break;
@@ -30,9 +30,9 @@ void GA::Parsing::Parser::Run() {
                 mTokenStream.PutBack(nextTok);
                 InterpretResult result = start();
                 if(result.Type == InterpretResult::TYPE::INTEGER)
-                    std::cout << "\n" << *static_cast<long *>(result.Value.get()) << "\n";
+                    std::cout << result.GetInt() << "\n";
                 else if(result.Type == InterpretResult::TYPE::FLOAT)
-                    std::cout << "\n" << *static_cast<double *>(result.Value.get()) << "\n";
+                    std::cout << result.GetFloat() << "\n";
                 nextTok = mTokenStream.Get();
                 if(nextTok->GetType() != Token::TYPE::ENDSTATEMENT)
                     throw std::runtime_error("Too many Tokens @"+nextTok->ToString());
@@ -42,7 +42,7 @@ void GA::Parsing::Parser::Run() {
 }
 
 InterpretResult GA::Parsing::Parser::start() {
-    std::clog << "Start ";
+    DebugNotifyStep("S");
     TPtr nextTok = mTokenStream.Get();
     switch (nextTok->GetType())
     {
@@ -68,10 +68,10 @@ InterpretResult GA::Parsing::Parser::start() {
                     throw std::runtime_error(
                             "Parser: Expected value to set variable to, got void at " + nextTok->ToString());
                 case InterpretResult::INTEGER:
-                    target->SetValue(*static_cast<long *>(newval.Value.get()));
+                    target->SetValue(newval.GetInt());
                     break;
                 case InterpretResult::FLOAT:
-                    target->SetValue(*static_cast<double *>(newval.Value.get()));
+                    target->SetValue(newval.GetFloat());
                     break;
             }
             return InterpretResult(); //VOID
@@ -83,31 +83,29 @@ InterpretResult GA::Parsing::Parser::start() {
 }
 
 InterpretResult GA::Parsing::Parser::expression() {
-    std::clog << "E ";
+    DebugNotifyStep("E");
     InterpretResult first = term();
     InterpretResult second = expression2();
 
     if(second.Type == InterpretResult::TYPE::VOID)
         return first;
     switch (first.Type) {
+        default:
         case InterpretResult::VOID:
             throw std::runtime_error("Parser: Expected value, got void at expression!");
         case InterpretResult::INTEGER:
             if(first.Type != second.Type)
                 throw std::runtime_error("Parser: Type mismatch in Expression: Integer vs Float");
-            *static_cast<long*>(first.Value.get()) += *static_cast<long*>(second.Value.get());
-            break;
+            return InterpretResult(first.GetInt() + second.GetInt());
         case InterpretResult::FLOAT:
             if(first.Type != second.Type)
                 throw std::runtime_error("Parser: Type mismatch in Expression: Float vs Integer");
-            *static_cast<double*>(first.Value.get()) += *static_cast<double*>(second.Value.get());
-            break;
+            return InterpretResult(first.GetFloat() + second.GetFloat());
     }
-    return first;
 }
 
 InterpretResult GA::Parsing::Parser::expression2() {
-    std::clog << "E2 ";
+    DebugNotifyStep("E2");
     TPtr nextTok = mTokenStream.Get();
     switch (nextTok->GetType()) {
         case Token::TYPE::MATHEMATICALOP:
@@ -120,11 +118,9 @@ InterpretResult GA::Parsing::Parser::expression2() {
                     case InterpretResult::TYPE::VOID:
                         return result;
                     case InterpretResult::TYPE::INTEGER:
-                        *static_cast<long*>(result.Value.get()) *= -1L;
-                        return result;
+                        return InterpretResult(result.GetInt() * -1L);
                     case InterpretResult::TYPE::FLOAT:
-                        *static_cast<double*>(result.Value.get()) *= -1.0;
-                        return result;
+                        return InterpretResult(result.GetFloat() * -1.0);
                 }
             }
         default:
@@ -134,7 +130,7 @@ InterpretResult GA::Parsing::Parser::expression2() {
 }
 
 InterpretResult GA::Parsing::Parser::term() {
-    std::clog << "T ";
+    DebugNotifyStep("T");
     InterpretResult first = factor();
     InterpretResult second = term2();
 
@@ -145,20 +141,18 @@ InterpretResult GA::Parsing::Parser::term() {
             throw std::runtime_error("Parser: Expected value, got void at Term!");
         case InterpretResult::INTEGER:
             if(first.Type != second.Type)
-                throw std::runtime_error("Parser: Type mismatch in Term: Integer vs Float");
-            *static_cast<long*>(first.Value.get()) *= *static_cast<long*>(second.Value.get());
-            break;
+                throw std::runtime_error("Parser: Type mismatch in Expression: Integer vs Float");
+            return InterpretResult(first.GetInt() * second.GetInt());
         case InterpretResult::FLOAT:
             if(first.Type != second.Type)
-                throw std::runtime_error("Parser: Type mismatch in Term: Float vs Integer");
-            *static_cast<double*>(first.Value.get()) *= *static_cast<double*>(second.Value.get());
-            break;
+                throw std::runtime_error("Parser: Type mismatch in Expression: Float vs Integer");
+            return InterpretResult(first.GetFloat() * second.GetFloat());
     }
     return first;
 }
 
 InterpretResult GA::Parsing::Parser::term2() {
-    std::clog << "T2 ";
+    DebugNotifyStep("T2");
     TPtr nextTok = mTokenStream.Get();
     switch (nextTok->GetType()) {
         case Token::TYPE::MATHEMATICALOP:
@@ -175,8 +169,7 @@ InterpretResult GA::Parsing::Parser::term2() {
                         //return result;
                         throw std::runtime_error("Divide by integer not allowed!");
                     case InterpretResult::TYPE::FLOAT:
-                        *static_cast<double*>(result.Value.get()) = 1.0 / *static_cast<double*>(result.Value.get());
-                        return result;
+                        return InterpretResult(1.0 / result.GetFloat());
                 }
             }
         default:
@@ -186,7 +179,7 @@ InterpretResult GA::Parsing::Parser::term2() {
 }
 
 InterpretResult GA::Parsing::Parser::factor() {
-    std::clog << "F ";
+    DebugNotifyStep("F");
     TPtr nextTok = mTokenStream.Get();
     InterpretResult result;
     switch (nextTok->GetType()) {
@@ -212,16 +205,18 @@ InterpretResult GA::Parsing::Parser::factor() {
             break;
         };
         case Token::TYPE::INTEGERVAL:
-            result.Type = InterpretResult::TYPE::INTEGER;
-            result.Value = std::shared_ptr<long>(new long(nextTok->GetIntValue()));
+            result = InterpretResult(nextTok->GetIntValue());
             break;
         case Token::TYPE::FLOATVAL:
-            result.Type = InterpretResult::TYPE::FLOAT;
-            result.Value = std::shared_ptr<float>(new float(nextTok->GetFloatValue()));
+            result = InterpretResult(nextTok->GetFloatValue());
             break;
         default:
             throw std::runtime_error("Parser: Expected factor, got "+ nextTok->ToString());
 
     }
     return result;
+}
+
+void GA::Parsing::Parser::DebugNotifyStep(const std::string &step) {
+    //std::clog << step << " ";
 }
