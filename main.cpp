@@ -2,27 +2,25 @@
 #include <iterator>
 #include <sstream>
 #include "Compiler.h"
+#include "Options.h"
 
 using std::cout;
 using std::cin;
 using std::endl;
 
-struct Options {
-    bool Banner = true;
-    void ReadCommandline(int argc, char** argv) {
-        for(int i = 1U; i < argc; ++i) {
-            if(std::string(argv[i]) == "--nobanner")
-                Banner = false;
-        }
+void GA::Options::ReadCommandline(int argc, char **argv) {
+    for(int i = 1U; i < argc; ++i) {
+        if(std::string(argv[i]) == "--nobanner")
+            Banner = false;
     }
-};
+}
 
 int main(int argc, char** argv) {
     try {
-        Options opts;
-        opts.ReadCommandline(argc, argv);
+        GA::opts = GA::Options();
+        GA::opts.ReadCommandline(argc, argv);
 
-        if(opts.Banner) {
+        if(GA::opts.Banner) {
             cout << u8"=== Go away compiler === build " __DATE__
                     u8" ===\n Fabian Grebe (000000), Adrian Müller (734922) " << endl;
 

@@ -16,28 +16,38 @@ GA::Parsing::Parser::~Parser() {
 }
 
 void GA::Parsing::Parser::Run() {
-    while(true)
-    {
-        TPtr nextTok = mTokenStream.Get();
-        switch (nextTok->GetType())
+    try {
+        while(true)
         {
-            case Token::TYPE::END:
-                std::cout << "Finished\n";
-                return;
-            case Token::TYPE::ENDSTATEMENT:
-                break;
-            default: {
-                mTokenStream.PutBack(nextTok);
-                InterpretResult result = start();
-                if(result.Type == InterpretResult::TYPE::INTEGER)
-                    std::cout << result.GetInt() << "\n";
-                else if(result.Type == InterpretResult::TYPE::FLOAT)
-                    std::cout << result.GetFloat() << "\n";
-                nextTok = mTokenStream.Get();
-                if(nextTok->GetType() != Token::TYPE::ENDSTATEMENT)
-                    throw std::runtime_error("Too many Tokens @"+nextTok->ToString());
-            };
+            TPtr nextTok = mTokenStream.Get();
+            switch (nextTok->GetType())
+            {
+                case Token::TYPE::END:
+                    std::cout << "Finished\n";
+                    return;
+                case Token::TYPE::ENDSTATEMENT:
+                    break;
+                default: {
+                    mTokenStream.PutBack(nextTok);
+                    InterpretResult result = start();
+                    if(result.Type == InterpretResult::TYPE::INTEGER)
+                        std::cout << result.GetInt() << "\n";
+                    else if(result.Type == InterpretResult::TYPE::FLOAT)
+                        std::cout << result.GetFloat() << "\n";
+                    nextTok = mTokenStream.Get();
+                    if(nextTok->GetType() != Token::TYPE::ENDSTATEMENT)
+                        throw std::runtime_error("Too many Tokens @"+nextTok->ToString());
+                };
+            }
         }
+    }
+    catch(std::exception& ex) {
+        std::cerr << u8"\nParser: Unhandled exception: " << ex.what() << u8"\n";
+        exit(-1);
+    }
+    catch(...) {
+        std::cerr << u8"\nParser: Unhandled exception!\n";
+        exit(-1);
     }
 }
 

@@ -15,49 +15,59 @@ GA::Lexing::Lexer::Lexer(WIQueue<Token> * output, SkipList<SymbolEntry, SYMBOLTA
 }
 
 void GA::Lexing::Lexer::Feed(std::istream &input) {
-    while(input && !input.eof()) {
-        char peekChar = 0;
-        input >> peekChar;
-        input.putback(peekChar);
-
-        switch (peekChar) {
-            case '+':
-            case '-':
-            case '*':
-            case '/':
-                readMathOp(input);
-                continue;
-            case ':':
-                readAssignmentOp(input);
-                continue;
-            case ';':
-                readStatementEnd(input);
-                continue;
-            case '(':
-            case ')':
-                readParenthesis(input);
-                continue;
-            default:
-                break;
-        }
-
-        if(iswspace(peekChar) || peekChar == '\0') {
+    try {
+        while (input && !input.eof()) {
+            char peekChar = 0;
             input >> peekChar;
-            continue;
+            input.putback(peekChar);
+
+            switch (peekChar) {
+                case '+':
+                case '-':
+                case '*':
+                case '/':
+                    readMathOp(input);
+                    continue;
+                case ':':
+                    readAssignmentOp(input);
+                    continue;
+                case ';':
+                    readStatementEnd(input);
+                    continue;
+                case '(':
+                case ')':
+                    readParenthesis(input);
+                    continue;
+                default:
+                    break;
+            }
+
+            if (iswspace(peekChar) || peekChar == '\0') {
+                input >> peekChar;
+                continue;
+            }
+            else if (isdigit(peekChar) || peekChar == '.')
+                readNumber(input);
+            else if (isalpha(peekChar))
+                readIdentifier(input);
+            else if (peekChar == '#') {
+                do {
+                    input.get(peekChar);
+                } while (input && !input.eof() && peekChar != '\n');
+            }
+            else
+                throw std::runtime_error("Unrecognized input char " + std::to_string(static_cast<int>(peekChar)) + "!");
         }
-        else if(isdigit(peekChar) || peekChar == '.')
-            readNumber(input);
-        else if(isalpha(peekChar))
-            readIdentifier(input);
-        else if(peekChar == '#') {
-            do {
-                input.get(peekChar);
-            } while(input && !input.eof() && peekChar != '\n');
-        }
-        else
-            throw std::runtime_error("Unrecognized input char "+std::to_string(static_cast<int>(peekChar))+"!");
+        push(TPtr(new Token(Token::TYPE::END)));
     }
-    push(TPtr(new Token(Token::TYPE::END)));
+    catch(std::exception& ex) {
+        std::cerr << u8"\nLexer: Unhandled exception: " << ex.what() << u8"\n";
+        exit(-1);
+    }
+    catch(...) {
+        std::cerr << u8"\nLexer: Unhandled exception!\n";
+        exit(-1);
+    }
 }
 
 void GA::Lexing::Lexer::push(const GA::Lexing::TPtr &token) {
