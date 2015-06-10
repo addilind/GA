@@ -22,18 +22,18 @@ int main(int argc, char** argv) {
 
         if(GA::opts.Banner) {
             cout << u8"=== Go away compiler === build " __DATE__
-                    u8" ===\n Fabian Grebe (000000), Adrian Müller (734922) " << endl;
+                    u8" ===\n Fabian Grebe (736830), Adrian Müller (734922) " << endl;
 
-            cout << u8"Input code, NewLine + EOF (on Linux typically CTRL-D) to run:" << endl;
+            cout << u8"Input code, NewLine + EOF (on Linux typically CTRL-D) to finish:" << endl;
         }
 
         std::cin >> std::noskipws;
-        std::istream_iterator<char> it(std::cin);
+        /*std::istream_iterator<char> it(std::cin);
         std::istream_iterator<char> end;
-        std::stringstream input(std::string(it, end));
+        std::stringstream input(std::string(it, end));*/
 
         GA::Compiler compiler;
-        compiler.Compile(input);
+        compiler.Compile(std::cin);//input);
 
         return 0;
     }
