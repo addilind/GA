@@ -6,7 +6,6 @@
 #include "Parser.h"
 
 using GA::Lexing::SymbolEntry;
-using GA::Parsing::InterpretResult;
 
 GA::Parsing::Parser::Parser(WIQueue<Token> *input, SymbolTable *symbolTable)
         :mTokenStream(input), mSymbolTable(symbolTable) {}

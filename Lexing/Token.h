@@ -24,9 +24,9 @@ namespace GA {
             Token(TYPE type);
             Token(TYPE type, const std::string &source);
             virtual ~Token();
-            TYPE GetType();
-            virtual std::string ToString();
-            std::string GetSource();
+            TYPE GetType() const;
+            virtual std::string ToString() const;
+            std::string GetSource() const;
 
             size_t GetSymbolEntry();
             MathOperation GetMathOp();
@@ -42,7 +42,7 @@ namespace GA {
             IdentifierToken(size_t symbolEntry, const std::string &source);
             virtual ~IdentifierToken();
             size_t GetSymbolEntry();
-            virtual std::string ToString() override;
+            virtual std::string ToString() const override;
         };
 
         class MathematicalOpToken : public Token {
@@ -55,7 +55,7 @@ namespace GA {
             MathematicalOpToken(MathOperation operation, const std::string &source);
             virtual ~MathematicalOpToken();
             MathOperation GetMathOp();
-            virtual std::string ToString() override;
+            virtual std::string ToString() const override;
         };
 
         class IntegerValToken : public Token {
@@ -67,7 +67,7 @@ namespace GA {
             IntegerValToken(long value, const std::string &source);
             virtual ~IntegerValToken();
             long GetIntValue();
-            virtual std::string ToString() override;
+            virtual std::string ToString() const override;
         };
 
         class FloatValToken : public Token {
@@ -79,7 +79,7 @@ namespace GA {
             FloatValToken(double value, const std::string &source);
             virtual ~FloatValToken();
             double GetFloatValue();
-            virtual std::string ToString() override;
+            virtual std::string ToString() const override;
         };
 
         typedef std::shared_ptr<GA::Lexing::Token> TPtr;

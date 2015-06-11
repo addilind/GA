@@ -14,7 +14,7 @@ GA::Lexing::Token::Token(GA::Lexing::Token::TYPE type, const std::string &source
 
 GA::Lexing::Token::~Token() {}
 
-GA::Lexing::Token::TYPE GA::Lexing::Token::GetType() {
+GA::Lexing::Token::TYPE GA::Lexing::Token::GetType() const {
     return mType;
 }
 
@@ -106,7 +106,7 @@ double GA::Lexing::Token::GetFloatValue() {
     return static_cast<FloatValToken*>(this)->GetFloatValue();
 }
 
-std::string GA::Lexing::Token::ToString() {
+std::string GA::Lexing::Token::ToString() const {
     switch (mType) {
         case TYPE::END:
             return "EndToken@"+mSource;
@@ -123,11 +123,11 @@ std::string GA::Lexing::Token::ToString() {
     }
 }
 
-std::string GA::Lexing::IdentifierToken::ToString() {
+std::string GA::Lexing::IdentifierToken::ToString() const {
     return "IdentifierToken["+std::to_string(mSymbolEntry)+"]@"+mSource;
 }
 
-std::string GA::Lexing::MathematicalOpToken::ToString() {
+std::string GA::Lexing::MathematicalOpToken::ToString() const {
     switch (mOperation){
         case MathOperation::Plus:
             return "MathOpToken[+]@"+mSource;
@@ -140,14 +140,14 @@ std::string GA::Lexing::MathematicalOpToken::ToString() {
     }
 }
 
-std::string GA::Lexing::IntegerValToken::ToString() {
+std::string GA::Lexing::IntegerValToken::ToString() const {
     return "IntegerToken["+std::to_string(mValue)+"]@"+mSource;
 }
 
-std::string GA::Lexing::FloatValToken::ToString() {
+std::string GA::Lexing::FloatValToken::ToString() const {
     return "FloatToken["+std::to_string(mValue)+"]@"+mSource;
 }
 
-std::string GA::Lexing::Token::GetSource() {
+std::string GA::Lexing::Token::GetSource() const {
     return mSource;
 }
