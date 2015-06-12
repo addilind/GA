@@ -133,7 +133,7 @@ namespace GA {
             while (currentID != id) {
                 size_t nextJump = 0U;
                 size_t nextJumpLength = 1U;
-                while (nextJump < LevelCount && currentID + nextJumpLength < id) {
+                while (nextJump < LevelCount && currentID + 2 * nextJumpLength <= id) {
                     nextJump += 1U;
                     nextJumpLength *= 2U;
                 }

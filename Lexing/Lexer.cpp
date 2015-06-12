@@ -30,6 +30,10 @@ void GA::Lexing::Lexer::Feed(std::istream &input) {
                 case '-':
                 case '*':
                 case '/':
+				case '=':
+				case '!':
+				case '<':
+				case '>':
 					readMathOp( in, sourceinfo );
                     continue;
                 case ':':
@@ -40,8 +44,13 @@ void GA::Lexing::Lexer::Feed(std::istream &input) {
                     continue;
                 case '(':
                 case ')':
+				case '{':
+				case '}':
 					readParenthesis( in, sourceinfo );
                     continue;
+				case '"':
+					readString( in, sourceinfo );
+					continue;
                 default:
                     break;
             }
@@ -65,12 +74,14 @@ void GA::Lexing::Lexer::Feed(std::istream &input) {
         push(TPtr(new Token(Token::TYPE::END)));
     }
     catch(std::exception& ex) {
-        std::cerr << "\nLexer: Unhandled exception: " << ex.what() << "\n";
+		std::cerr << "\nLexer: Unhandled exception: " << ex.what() << "\n";
+		system( "pause" );
         exit(-1);
     }
     catch(...) {
-        std::cerr << "\nLexer: Unhandled exception!\n";
-        exit(-1);
+		std::cerr << "\nLexer: Unhandled exception!\n";
+		system( "pause" );
+		exit( -1 );
     }
 }
 
@@ -95,7 +106,48 @@ void GA::Lexing::Lexer::readMathOp( std::istream &input, const std::string& sour
             break;
         case '/':
 			push( TPtr( new MathematicalOpToken( Token::MathOperation::Divide, sourceinfo ) ) );
-            break;
+			break;
+		case '!':
+			input >> operationChar;
+			if (operationChar == '=')
+				push( TPtr( new MathematicalOpToken( Token::MathOperation::NotEqual, sourceinfo ) ) );
+			else
+			{
+				input.putback( operationChar );
+				push( TPtr( new MathematicalOpToken( Token::MathOperation::Invert, sourceinfo ) ) );
+			}
+			break;
+		case '=':
+			input >> operationChar;
+			if (operationChar == '=')
+				push( TPtr( new MathematicalOpToken( Token::MathOperation::Equal, sourceinfo ) ) );
+			else
+			{
+				input.putback( operationChar );
+				push( TPtr( new Token( Token::TYPE::ASSIGNMENTOP, sourceinfo ) ) ); //ToDo: change!
+			}
+			break;
+		case '<':
+			input >> operationChar;
+			if (operationChar == '=')
+				push( TPtr( new MathematicalOpToken( Token::MathOperation::LessEqual, sourceinfo ) ) );
+			else
+			{
+				input.putback( operationChar );
+				push( TPtr( new MathematicalOpToken( Token::MathOperation::Less, sourceinfo ) ) );
+			}
+			break;
+		case '>':
+			input >> operationChar;
+			if (operationChar == '=')
+				push( TPtr( new MathematicalOpToken( Token::MathOperation::GreaterEqual, sourceinfo ) ) );
+			else
+			{
+				input.putback( operationChar );
+				push( TPtr( new MathematicalOpToken( Token::MathOperation::Greater, sourceinfo ) ) );
+			}
+			break;
+
         default:
             throw std::runtime_error("Lexer: Tried to read math operator, but next in stream is no math op!");
     }
@@ -122,11 +174,15 @@ void GA::Lexing::Lexer::readStatementEnd( std::istream &input, const std::string
 
 void GA::Lexing::Lexer::readParenthesis( std::istream &input, const std::string& sourceinfo ) {
     char parenthesisChar = 0;
-    input >> parenthesisChar;
-    if( parenthesisChar == '(')
+	input >> parenthesisChar;
+	if (parenthesisChar == '(')
 		push( TPtr( new Token( Token::TYPE::OPENPARENTHESIS, sourceinfo ) ) );
-    else if( parenthesisChar == ')')
+	else if (parenthesisChar == ')')
 		push( TPtr( new Token( Token::TYPE::CLOSEPARENTHESIS, sourceinfo ) ) );
+	if (parenthesisChar == '{')
+		push( TPtr( new Token( Token::TYPE::OPENCURLY, sourceinfo ) ) );
+	else if (parenthesisChar == '}')
+		push( TPtr( new Token( Token::TYPE::CLOSECURLY, sourceinfo ) ) );
     else
         throw std::runtime_error("Lexer: Tried to read parenthesis, but next in stream is no parenthesis!");
 }
@@ -156,18 +212,18 @@ void GA::Lexing::Lexer::readIdentifier( std::istream &input, const std::string& 
         input.get(buf);
         if(iswspace(buf))
             break;
-        switch (buf) {
-            case '+': case '-': case '*': case '/':
-            case ';': case ':':
-                input.putback(buf);
-                break;
-            default:
-                identifier << buf;
-                continue;
-        }
+		if (isalnum(buf) || buf == '_')
+		{
+			identifier << buf;
+			continue;
+		}
         break;
     }
     std::string id = identifier.str();
+
+	if (checkKeyword( id, sourceinfo ))
+		return;
+
     size_t symbolEntry = 0U;
 
     auto existingEntry = std::find_if(mSymbolTable->Begin(), mSymbolTable->End(),
@@ -182,3 +238,90 @@ void GA::Lexing::Lexer::readIdentifier( std::istream &input, const std::string& 
     push(TPtr(new IdentifierToken(symbolEntry, sourceinfo)));
 }
 
+void GA::Lexing::Lexer::readString(std::istream& input, const std::string& sourceinfo)
+{
+	char quoteChar = 0;
+	input >> quoteChar;
+	if (quoteChar != '"')
+		throw std::runtime_error( "Lexer: Tried to read parenthesis, but next in stream is no parenthesis!" );
+
+	std::wstringstream buf;
+	bool escape = false;
+	bool done = false;
+	while (!done && input && !input.eof()) {
+		input >> quoteChar;
+		if (escape)
+		{
+			buf << quoteChar;
+			escape = false;
+			continue;
+		}
+		switch (quoteChar)
+		{
+		case '\\':
+			escape = true;
+			break;
+		case '"':
+			done = true;
+			break;
+		default:
+			buf << quoteChar;
+			break;
+		}
+	}
+	push( TPtr( new StringValToken( buf.str(), sourceinfo ) ) );
+
+}
+
+bool GA::Lexing::Lexer::checkKeyword(const std::string& id, const std::string& sourceinfo)
+{
+	if (id == "func") {
+		push( TPtr( new KeywordToken( Token::Keyword::Function, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "if") {
+		push( TPtr( new KeywordToken( Token::Keyword::If, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "else") {
+		push( TPtr( new KeywordToken( Token::Keyword::Else, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "package") {
+		push( TPtr( new KeywordToken( Token::Keyword::Package, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "import") {
+		push( TPtr( new KeywordToken( Token::Keyword::Import, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "var") {
+		push( TPtr( new KeywordToken( Token::Keyword::Var, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "return") {
+		push( TPtr( new KeywordToken( Token::Keyword::Return, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "int") {
+		push( TPtr( new ValTypeToken( Token::ValType::Int, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "float") {
+		push( TPtr( new ValTypeToken( Token::ValType::Float, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "bool") {
+		push( TPtr( new ValTypeToken( Token::ValType::Bool, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "string") {
+		push( TPtr( new ValTypeToken( Token::ValType::String, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "void") {
+		push( TPtr( new ValTypeToken( Token::ValType::Void, sourceinfo ) ) );
+		return true;
+	}
+	return false;
+}

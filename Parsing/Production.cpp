@@ -31,6 +31,7 @@ GA::Parsing::RecursiveDescentProduction::~RecursiveDescentProduction() {
 
 std::vector<const GA::Parsing::Production *> GA::Parsing::RecursiveDescentProduction::FitsInput( const GA::Lexing::Token *nextInput,
 	const ProductionLibrary* library ) const {
+	std::cout << library->GetProductionStateName( mSourceStateID ) << std::endl;
     //Get all Productions that resolve the first state of this Production
 	if (mSubStates.size() == 0)
 		return std::vector<const GA::Parsing::Production *>( { static_cast<const Production*>(this) } );
@@ -47,7 +48,6 @@ GA::Datastructures::ASTNode* GA::Parsing::RecursiveDescentProduction::Read( Lexi
 	std::vector<const Production*>* hint ) const
 {
 	auto result = new Datastructures::ASTNode( mASTRep );
-	std::cout << mASTRep << std::endl;
 	size_t i = 0;
 	if (hint != nullptr)
 	{

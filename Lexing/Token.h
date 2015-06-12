@@ -13,9 +13,12 @@ namespace GA {
         class Token {
         public:
             enum TYPE {
-                INVALID, IDENTIFIER, MATHEMATICALOP, ASSIGNMENTOP, INTEGERVAL, FLOATVAL, OPENPARENTHESIS, CLOSEPARENTHESIS, ENDSTATEMENT, END
+				INVALID, IDENTIFIER, MATHEMATICALOP, ASSIGNMENTOP, INTEGERVAL, FLOATVAL, STRINGVAL, BOOLVAL, COMMA,
+				VALTYPE, OPENPARENTHESIS, CLOSEPARENTHESIS, OPENCURLY, CLOSECURLY, KEYWORD, ENDSTATEMENT, END
             };
-            enum MathOperation { Plus, Minus, Times, Divide };
+            enum MathOperation { Plus, Minus, Times, Divide, Equal, NotEqual, Less, LessEqual, Greater, GreaterEqual, Invert };
+			enum Keyword { Package, Import, Function, If, Else, Var, Return };
+			enum ValType { Void, Bool, Int, Float, String };
         protected:
             TYPE mType;
             std::string mSource;
@@ -31,8 +34,12 @@ namespace GA {
 
 			size_t GetSymbolEntry() const;
 			MathOperation GetMathOp() const;
+			Keyword GetKeyword() const;
 			long GetIntValue() const;
 			double GetFloatValue() const;
+			std::wstring GetStringValue() const;
+			bool GetBoolValue() const;
+			ValType GetValType() const;
         };
 
         class IdentifierToken : public Token {
@@ -61,6 +68,47 @@ namespace GA {
 			virtual bool operator==(const Token& other) const override;
         };
 
+		class KeywordToken : public Token {
+		public:
+		private:
+			Keyword mKeyword;
+		public:
+			KeywordToken();
+			KeywordToken( Keyword keyword );
+			KeywordToken( Keyword keyword, const std::string &source );
+			virtual ~KeywordToken();
+			Keyword GetKeyword() const;
+			virtual std::string ToString() const override;
+			virtual bool operator==(const Token& other) const override;
+		};
+
+		class ValTypeToken : public Token {
+		public:
+		private:
+			ValType mValType;
+		public:
+			ValTypeToken();
+			ValTypeToken( ValType valType );
+			ValTypeToken( ValType valType, const std::string &source );
+			virtual ~ValTypeToken();
+			ValType GetValType() const;
+			virtual std::string ToString() const override;
+			virtual bool operator==(const Token& other) const override;
+		};
+
+		class BooleanValToken : public Token {
+		private:
+			bool mValue;
+		public:
+			BooleanValToken();
+			BooleanValToken( bool value );
+			BooleanValToken( bool value, const std::string &source );
+			virtual ~BooleanValToken();
+			bool GetBoolValue() const;
+			virtual std::string ToString() const override;
+			virtual bool operator==(const Token& other) const override;
+		};
+
         class IntegerValToken : public Token {
         private:
             long mValue;
@@ -85,7 +133,20 @@ namespace GA {
 			double GetFloatValue() const;
 			virtual std::string ToString() const override;
 			virtual bool operator==(const Token& other) const override;
-        };
+		};
+
+		class StringValToken : public Token {
+		private:
+			std::wstring mValue;
+		public:
+			StringValToken();
+			StringValToken( const std::wstring& value );
+			StringValToken( const std::wstring& value, const std::string &source );
+			virtual ~StringValToken();
+			std::wstring GetStringValue() const;
+			virtual std::string ToString() const override;
+			virtual bool operator==(const Token& other) const override;
+		};
 
         typedef std::shared_ptr<GA::Lexing::Token> TPtr;
     }

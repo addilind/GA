@@ -1,13 +1,52 @@
-S E E2 T T2 F
-S start E #
-E expr T E2 #
-E2 exprsec+ + E #
-E2 exprsec- - E #
-E2 eend #
-T term F T2 #
-T2 termsec* * T #
-T2 termsec/ / T #
-T2 tend #
-F factorsubexp ( E ) #
-F factorid id #
-F factornum num #
+S S0 P P0 D D0 V I I0 SC E E0 E1 N N0 N1 N2 N3 FCP FCP0
+S Function func id ( P ) D S0 #
+S0 FunctionConcat S #
+S0 FunctionsFin #
+P Parameter id type P0 #
+P NoParameters #
+P0 ParameterConcat , P #
+P0 ParametersFin #
+D ReturningFunctionBody type { D0 return E ; } #
+D FunctionBody { D0 } #
+D0 StatementConcat V ; D0 #
+D0 StatementsFin # 
+V IF-Condition if E SC I #
+I ELSE-Branches else I0 #
+I Endif #
+I0 ELSEIF-Branch if E SC I #
+I0 ELSE-Branch SC #
+SC SingleLineScope V #
+SC ScopeBlock { D0 } #
+V Assignment var id := E #
+V ExpStatement E #
+E ParenthesizedExp ( E ) #
+E NegatedExp ! E #
+E SimpleExp E0 #
+E0 BoolVar bool E1 #
+E0 StringVar str E1 #
+E0 Arithmetic N E1 #
+E1 Equals == E #
+E1 NotEquals != E #
+E1 Less < E #
+E1 LessEq <= E #
+E1 Greater > E #
+E1 GreaterEq >= E #
+E1 ExpEnd #
+N Number N1 N0 #
+N0 Sum + E #
+N0 Dif - E #
+N0 SumEnd #
+N1 Term N3 N2 #
+N2 Mult * N1 #
+N2 Div / N1 #
+N2 MultEnd #
+N3 Factor ( N ) #
+N3 FunctionCall id ( FCP ) #
+N3 Variable id #
+N3 NumberLiteral num #
+FCP CallParameter id type FCP0 #
+FCP NoCallParameters #
+FCP0 CallParameterConcat , FCP #
+FCP0 CallParametersFin #
+
+

@@ -105,14 +105,34 @@ void GA::Parsing::ProductionLibrary::buildTokenProductions(std::map<std::string,
 	buildTokenTypeProduction( "id", Lexing::Token::TYPE::IDENTIFIER, stateNameLookup );
 	buildTokenTypeProduction( "num", Lexing::Token::TYPE::INTEGERVAL, stateNameLookup );
 	buildTokenTypeProduction( "num", Lexing::Token::TYPE::FLOATVAL, stateNameLookup );
+	buildTokenTypeProduction( "str", Lexing::Token::TYPE::STRINGVAL, stateNameLookup );
+	buildTokenTypeProduction( "bool", Lexing::Token::TYPE::BOOLVAL, stateNameLookup );
 	buildTokenTypeProduction( "(", Lexing::Token::TYPE::OPENPARENTHESIS, stateNameLookup );
 	buildTokenTypeProduction( ")", Lexing::Token::TYPE::CLOSEPARENTHESIS, stateNameLookup );
+	buildTokenTypeProduction( "{", Lexing::Token::TYPE::OPENCURLY, stateNameLookup );
+	buildTokenTypeProduction( "}", Lexing::Token::TYPE::CLOSECURLY, stateNameLookup );
 	buildTokenTypeProduction( ":=", Lexing::Token::TYPE::ASSIGNMENTOP, stateNameLookup );
 	buildTokenTypeProduction( ";", Lexing::Token::TYPE::ENDSTATEMENT, stateNameLookup );
+	buildTokenTypeProduction( ",", Lexing::Token::TYPE::COMMA, stateNameLookup );
+	buildTokenTypeProduction( "type", Lexing::Token::TYPE::VALTYPE, stateNameLookup );
 	buildTokenRefProduction( "+", std::unique_ptr<Lexing::Token>( new Lexing::MathematicalOpToken( Lexing::Token::MathOperation::Plus ) ), stateNameLookup );
 	buildTokenRefProduction( "-", std::unique_ptr<Lexing::Token>( new Lexing::MathematicalOpToken( Lexing::Token::MathOperation::Minus ) ), stateNameLookup );
 	buildTokenRefProduction( "*", std::unique_ptr<Lexing::Token>( new Lexing::MathematicalOpToken( Lexing::Token::MathOperation::Times ) ), stateNameLookup );
 	buildTokenRefProduction( "/", std::unique_ptr<Lexing::Token>( new Lexing::MathematicalOpToken( Lexing::Token::MathOperation::Divide ) ), stateNameLookup );
+	buildTokenRefProduction( "==", std::unique_ptr<Lexing::Token>( new Lexing::MathematicalOpToken( Lexing::Token::MathOperation::Equal ) ), stateNameLookup );
+	buildTokenRefProduction( "!=", std::unique_ptr<Lexing::Token>( new Lexing::MathematicalOpToken( Lexing::Token::MathOperation::NotEqual ) ), stateNameLookup );
+	buildTokenRefProduction( "<", std::unique_ptr<Lexing::Token>( new Lexing::MathematicalOpToken( Lexing::Token::MathOperation::Less ) ), stateNameLookup );
+	buildTokenRefProduction( "<=", std::unique_ptr<Lexing::Token>( new Lexing::MathematicalOpToken( Lexing::Token::MathOperation::LessEqual ) ), stateNameLookup );
+	buildTokenRefProduction( ">", std::unique_ptr<Lexing::Token>( new Lexing::MathematicalOpToken( Lexing::Token::MathOperation::Greater ) ), stateNameLookup );
+	buildTokenRefProduction( ">=", std::unique_ptr<Lexing::Token>( new Lexing::MathematicalOpToken( Lexing::Token::MathOperation::GreaterEqual ) ), stateNameLookup );
+	buildTokenRefProduction( "!", std::unique_ptr<Lexing::Token>( new Lexing::MathematicalOpToken( Lexing::Token::MathOperation::Invert ) ), stateNameLookup );
+	buildTokenRefProduction( "func", std::unique_ptr<Lexing::Token>( new Lexing::KeywordToken( Lexing::Token::Keyword::Function ) ), stateNameLookup );
+	buildTokenRefProduction( "if", std::unique_ptr<Lexing::Token>( new Lexing::KeywordToken( Lexing::Token::Keyword::If ) ), stateNameLookup );
+	buildTokenRefProduction( "else", std::unique_ptr<Lexing::Token>( new Lexing::KeywordToken( Lexing::Token::Keyword::Else ) ), stateNameLookup );
+	buildTokenRefProduction( "package", std::unique_ptr<Lexing::Token>( new Lexing::KeywordToken( Lexing::Token::Keyword::Package ) ), stateNameLookup );
+	buildTokenRefProduction( "import", std::unique_ptr<Lexing::Token>( new Lexing::KeywordToken( Lexing::Token::Keyword::Import ) ), stateNameLookup );
+	buildTokenRefProduction( "var", std::unique_ptr<Lexing::Token>( new Lexing::KeywordToken( Lexing::Token::Keyword::Var ) ), stateNameLookup );
+	buildTokenRefProduction( "return", std::unique_ptr<Lexing::Token>( new Lexing::KeywordToken( Lexing::Token::Keyword::Return ) ), stateNameLookup );
 }
 
 void GA::Parsing::ProductionLibrary::buildTokenTypeProduction(const std::string& tokenID, Lexing::Token::TYPE type, std::map<std::string, ProductionState>& stateNameLookup)

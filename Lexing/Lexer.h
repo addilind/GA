@@ -32,6 +32,8 @@ namespace GA {
 			void readParenthesis( std::istream &input, const std::string& sourceinfo );
 			void readNumber( std::istream &input, const std::string& sourceinfo );
 			void readIdentifier( std::istream &input, const std::string& sourceinfo );
+			void readString( std::istream &input, const std::string& sourceinfo );
+			bool checkKeyword( const std::string& id, const std::string& sourceinfo );
         };
     }
 }

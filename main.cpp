@@ -40,7 +40,8 @@ int main(int argc, char** argv) {
         std::stringstream input(std::string(it, end));*/
 
 		std::ifstream productionSource( "productions.inp" );
-		std::ifstream input( "Testing/simpleadd.input" );
+		std::ifstream input( "newtest.input" );
+
 
         GA::Compiler compiler(productionSource);
         compiler.Compile(input);//input);
@@ -49,11 +50,13 @@ int main(int argc, char** argv) {
         return 0;
     }
     catch(std::exception& ex) {
-        std::cerr << "\nUnhandled exception: " << ex.what() << "\n";
+		std::cerr << "\nUnhandled exception: " << ex.what() << "\n";
+		system( "pause" );
         return -1;
     }
     catch(...) {
-        std::cerr << "\nUnhandled exception!\n";
+		std::cerr << "\nUnhandled exception!\n";
+		system( "pause" );
         return -1;
     }
 }
