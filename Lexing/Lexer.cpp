@@ -4,11 +4,12 @@
 
 #include <iostream>
 #include <memory>
-#include <cctype>
+#include <string>
 #include <sstream>
 #include <algorithm>
 #include "Lexer.h"
 #include "../CountingStreamBuffer.h"
+#include "../Options.h"
 
 GA::Lexing::Lexer::Lexer(WIQueue<Token> * output, SkipList<SymbolEntry, SYMBOLTABLESKIPLEVELS> *symbolTable)
         : mOutput(output), mSymbolTable(symbolTable){
@@ -18,6 +19,7 @@ GA::Lexing::Lexer::Lexer(WIQueue<Token> * output, SkipList<SymbolEntry, SYMBOLTA
 void GA::Lexing::Lexer::Feed(std::istream &input) {
 	CountingStreamBuffer cntstreambuf( input.rdbuf() );
 	std::istream in( &cntstreambuf );
+
     try {
         while (in && !in.eof()) {
             char peekChar = 0;
@@ -75,25 +77,26 @@ void GA::Lexing::Lexer::Feed(std::istream &input) {
     }
     catch(std::exception& ex) {
 		std::cerr << "\nLexer: Unhandled exception: " << ex.what() << "\n";
-		system( "pause" );
+		//system( "pause" );
         exit(-1);
     }
     catch(...) {
 		std::cerr << "\nLexer: Unhandled exception!\n";
-		system( "pause" );
+		//system( "pause" );
 		exit( -1 );
     }
 }
 
 void GA::Lexing::Lexer::push(const GA::Lexing::TPtr &token) {
-    std::cout << "Pushing " << token->ToString() << "\n";
+	if(GA::opts.DebugLexer)
+    	std::cout << "Pushing " << token->ToString() << "\n";
 
     mOutput->Push(token);
 }
 
 void GA::Lexing::Lexer::readMathOp( std::istream &input, const std::string& sourceinfo ) {
     char operationChar = 0;
-    input >> operationChar;
+    input >> ( operationChar );
     switch (operationChar) {
         case '+':
 			push( TPtr( new MathematicalOpToken( Token::MathOperation::Plus, sourceinfo ) ) );
@@ -108,7 +111,7 @@ void GA::Lexing::Lexer::readMathOp( std::istream &input, const std::string& sour
 			push( TPtr( new MathematicalOpToken( Token::MathOperation::Divide, sourceinfo ) ) );
 			break;
 		case '!':
-			input >> operationChar;
+			input >> ( operationChar );
 			if (operationChar == '=')
 				push( TPtr( new MathematicalOpToken( Token::MathOperation::NotEqual, sourceinfo ) ) );
 			else
@@ -118,7 +121,7 @@ void GA::Lexing::Lexer::readMathOp( std::istream &input, const std::string& sour
 			}
 			break;
 		case '=':
-			input >> operationChar;
+			input >> ( operationChar );
 			if (operationChar == '=')
 				push( TPtr( new MathematicalOpToken( Token::MathOperation::Equal, sourceinfo ) ) );
 			else
@@ -128,7 +131,7 @@ void GA::Lexing::Lexer::readMathOp( std::istream &input, const std::string& sour
 			}
 			break;
 		case '<':
-			input >> operationChar;
+			input >> ( operationChar );
 			if (operationChar == '=')
 				push( TPtr( new MathematicalOpToken( Token::MathOperation::LessEqual, sourceinfo ) ) );
 			else
@@ -138,7 +141,7 @@ void GA::Lexing::Lexer::readMathOp( std::istream &input, const std::string& sour
 			}
 			break;
 		case '>':
-			input >> operationChar;
+			input >> ( operationChar );
 			if (operationChar == '=')
 				push( TPtr( new MathematicalOpToken( Token::MathOperation::GreaterEqual, sourceinfo ) ) );
 			else
@@ -155,10 +158,10 @@ void GA::Lexing::Lexer::readMathOp( std::istream &input, const std::string& sour
 
 void GA::Lexing::Lexer::readAssignmentOp( std::istream &input, const std::string& sourceinfo ) {
     char assignmentChar = 0;
-    input >> assignmentChar;
+    input >> ( assignmentChar );
     if(assignmentChar != ':')
         throw std::runtime_error("Lexer: Tried to read assignment operator, but next in stream is no colon!");
-    input >> assignmentChar;
+    input >> ( assignmentChar );
     if(assignmentChar != '=')
         throw std::runtime_error("Lexer: Tried to read assignment operator, but next in stream is no equals sign!");
 	push( TPtr( new Token( Token::TYPE::ASSIGNMENTOP, sourceinfo ) ) );
@@ -166,7 +169,7 @@ void GA::Lexing::Lexer::readAssignmentOp( std::istream &input, const std::string
 
 void GA::Lexing::Lexer::readStatementEnd( std::istream &input, const std::string& sourceinfo ) {
     char eosChar = 0;
-    input >> eosChar;
+    input >> ( eosChar );
     if(eosChar != ';')
         throw std::runtime_error("Lexer: Tried to read end of statement, but next in stream is no semicolon!");
 	push( TPtr( new Token( Token::TYPE::ENDSTATEMENT, sourceinfo ) ) );
@@ -174,7 +177,7 @@ void GA::Lexing::Lexer::readStatementEnd( std::istream &input, const std::string
 
 void GA::Lexing::Lexer::readParenthesis( std::istream &input, const std::string& sourceinfo ) {
     char parenthesisChar = 0;
-	input >> parenthesisChar;
+	input >> ( parenthesisChar );
 	if (parenthesisChar == '(')
 		push( TPtr( new Token( Token::TYPE::OPENPARENTHESIS, sourceinfo ) ) );
 	else if (parenthesisChar == ')')
@@ -192,7 +195,7 @@ void GA::Lexing::Lexer::readNumber( std::istream &input, const std::string& sour
     input >> value;
 
     char peekChar = 0;
-    input >> peekChar;
+    input >> ( peekChar );
     input.putback(peekChar);
     if (peekChar == '.') { //Floating point value
         double decimal = 0; //read decimal placed
@@ -209,7 +212,7 @@ void GA::Lexing::Lexer::readIdentifier( std::istream &input, const std::string& 
     std::stringstream identifier;
     char buf = 0;
     while(input && !input.eof()) {
-        input.get(buf);
+        input.get( buf );
         if(iswspace(buf))
             break;
 		if (isalnum(buf) || buf == '_')
@@ -217,10 +220,12 @@ void GA::Lexing::Lexer::readIdentifier( std::istream &input, const std::string& 
 			identifier << buf;
 			continue;
 		}
-		input.putback( buf );
+		input.unget(  );
         break;
     }
     std::string id = identifier.str();
+
+	std::cout << "'" << id << "'\n";
 
 	if (checkKeyword( id, sourceinfo ))
 		return;
@@ -242,7 +247,7 @@ void GA::Lexing::Lexer::readIdentifier( std::istream &input, const std::string& 
 void GA::Lexing::Lexer::readString(std::istream& input, const std::string& sourceinfo)
 {
 	char quoteChar = 0;
-	input >> quoteChar;
+	input >> ( quoteChar );
 	if (quoteChar != '"')
 		throw std::runtime_error( "Lexer: Tried to read parenthesis, but next in stream is no parenthesis!" );
 
@@ -250,7 +255,7 @@ void GA::Lexing::Lexer::readString(std::istream& input, const std::string& sourc
 	bool escape = false;
 	bool done = false;
 	while (!done && input && !input.eof()) {
-		input >> quoteChar;
+		input >> ( quoteChar );
 		if (escape)
 		{
 			buf << quoteChar;

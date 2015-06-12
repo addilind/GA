@@ -1,17 +1,17 @@
 func isEven(i int) bool {
 	var ret := false;
-	if i == 0 {
-		ret = true;
+	if i {
+		var ret bool := true;
 	} else {
-		var half := i / 2;
-		var full := 2 * half;
-		if full == i {
-			ret = true;
+		var half int := i / 2;
+		var full int := 2 * half;
+		if full {
+			var ret bool := true;
 		}
 	}
 	return ret;
 }
 
 func main() {
-	5*3-7
+	5*3-7;
 }

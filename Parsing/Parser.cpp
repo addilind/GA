@@ -44,12 +44,12 @@ void GA::Parsing::Parser::Run() {
     }
     catch(std::exception& ex) {
 		std::cerr << "\nParser: Unhandled exception: " << ex.what() << "\n";
-		system( "pause" );
+		//system( "pause" );
         exit(-1);
     }
     catch(...) {
 		std::cerr << "\nParser: Unhandled exception!\n";
-		system( "pause" );
+		//system( "pause" );
         exit(-1);
     }
 }

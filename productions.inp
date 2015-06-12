@@ -1,52 +1,39 @@
-S S0 P P0 D D0 V I I0 SC E E0 E1 N N0 N1 N2 N3 FCP FCP0
+S S0 P P0 D V I I0 I1 A E E0 E1 E2 E3 IDTAIL PARA PARA2
 S Function func id ( P ) D S0 #
-S0 FunctionConcat S #
-S0 FunctionsFin #
-P Parameter id type P0 #
-P NoParameters #
-P0 ParameterConcat , P #
-P0 ParametersFin #
-D ReturningFunctionBody type { D0 return E ; } #
-D FunctionBody { D0 } #
-D0 StatementConcat V ; D0 #
-D0 StatementsFin # 
-V IF-Condition if E SC I #
-I ELSE-Branches else I0 #
-I Endif #
-I0 ELSEIF-Branch if E SC I #
-I0 ELSE-Branch SC #
-SC SingleLineScope V #
-SC ScopeBlock { D0 } #
-V Assignment var id := E #
-V ExpStatement E #
-E ParenthesizedExp ( E ) #
-E NegatedExp ! E #
-E SimpleExp E0 #
-E0 BoolVar bool E1 #
-E0 StringVar str E1 #
-E0 Arithmetic N E1 #
-E1 Equals == E #
-E1 NotEquals != E #
-E1 Less < E #
-E1 LessEq <= E #
-E1 Greater > E #
-E1 GreaterEq >= E #
-E1 ExpEnd #
-N Number N1 N0 #
-N0 Sum + E #
-N0 Dif - E #
-N0 SumEnd #
-N1 Term N3 N2 #
-N2 Mult * N1 #
-N2 Div / N1 #
-N2 MultEnd #
-N3 Factor ( N ) #
-N3 FunctionCall id ( FCP ) #
-N3 Variable id #
-N3 NumberLiteral num #
-FCP CallParameter id type FCP0 #
-FCP NoCallParameters #
-FCP0 CallParameterConcat , FCP #
-FCP0 CallParametersFin #
-
-
+S0 FunctionConcat func S #
+S0 FunctionConcatEnd func #
+P FunctionParams id type P0 #
+P NoFunctionParam #
+P0 FunctionParamConcat , P #
+P0 FunctionParamsEnd #
+D ReturningFuncBody type { V return E ; } #
+D FuncBody { V } #
+V IFSideEffect if I V #
+V AssSideEffect A ; V #
+V SideEffectEnd #
+I IFBody E { V } I0 #
+I0 Else else I1 #
+I0 EndIF #
+I1 ElseIf if I #
+I1 SimpleElse { V } #
+A VarAssign var id type := E #
+A ExprAssign E #
+E Expression E1 E0 #
+E0 SumExp + E0 #
+E0 SubExp - E0 #
+E0 SumExpEnd #
+E1 Term E3 E2 #
+E2 TermMult * E2 #
+E2 TermDiv / E2 #
+E2 TermEnd #
+E3 Paren ( E ) #
+E3 Variable id IDTAIL #
+E3 Number num #
+E3 StringLit str #
+E3 Bool bool #
+IDTAIL CallParams ( PARA ) #
+IDTAIL VarLookup #
+PARA FirstParam E PARA2 #
+PARA NoParams #
+PARA ParaConcat , E PARA2 #
+PARA ParaEnd #

@@ -6,10 +6,12 @@
 
 namespace GA {
     struct Options {
-        bool Banner = true;
-		bool DebugGrammar = true;
+        bool Banner;
+        bool DebugLexer;
+		bool DebugGrammar;
 
+        Options();
         void ReadCommandline(int argc, char **argv);
     };
-    Options opts;
+    static Options opts;
 }

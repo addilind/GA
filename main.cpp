@@ -5,14 +5,15 @@
 #include "Options.h"
 #include <fstream>
 
-#ifdef _WIN32
-#include <io.h>
-#include <fcntl.h>
-#endif
-
 using std::cout;
 using std::cin;
 using std::endl;
+
+GA::Options opts;
+
+GA::Options::Options() : Banner(true), DebugLexer(true), DebugGrammar(true) {
+
+}
 
 void GA::Options::ReadCommandline(int argc, char **argv) {
     for(int i = 1U; i < argc; ++i) {
@@ -41,22 +42,22 @@ int main(int argc, char** argv) {
 
 		std::ifstream productionSource( "productions.inp" );
 		std::ifstream input( "newtest.input" );
-
+        input >> std::noskipws;
 
         GA::Compiler compiler(productionSource);
         compiler.Compile(input);//input);
-		system( "pause" );
+		//system( "pause" );
 
         return 0;
     }
     catch(std::exception& ex) {
 		std::cerr << "\nUnhandled exception: " << ex.what() << "\n";
-		system( "pause" );
+		//system( "pause" );
         return -1;
     }
     catch(...) {
 		std::cerr << "\nUnhandled exception!\n";
-		system( "pause" );
+		//system( "pause" );
         return -1;
     }
 }
