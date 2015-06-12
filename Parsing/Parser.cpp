@@ -34,10 +34,6 @@ void GA::Parsing::Parser::Run() {
 					Datastructures::ASTNode* ast = (*startProduction)[0]->Read( mTokenStream, mProductionLibrary, nullptr );
 
 					ast->Print();
-
-                    nextTok = mTokenStream.Get();
-                    if(nextTok->GetType() != Token::TYPE::ENDSTATEMENT)
-                        throw std::runtime_error("Too many Tokens @"+nextTok->ToString());
                 };
             }
         }

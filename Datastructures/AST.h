@@ -18,9 +18,9 @@ namespace GA {
 			inline void Print(int indent = 0)
 			{
 				for (int i = 0; i < indent - 1; ++i)
-					std::cout << "| ";// "║ ";
+					std::cout <<  u8"║ "; //"| ";//
 				if (indent >= 1)
-					std::cout << "+-";// "╠═";
+					std::cout <<  u8"╠═"; //"+-";//
 				std::cout << mASTRep << "\n";
 				for (auto child : mChildren)
 					child->Print( indent + 1 );

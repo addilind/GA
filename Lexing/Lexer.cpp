@@ -76,12 +76,12 @@ void GA::Lexing::Lexer::Feed(std::istream &input) {
         push(TPtr(new Token(Token::TYPE::END)));
     }
     catch(std::exception& ex) {
-		std::cerr << "\nLexer: Unhandled exception: " << ex.what() << "\n";
+		std::cerr << "\nLexer: Unhandled exception: " << ex.what() << std::endl;
 		//system( "pause" );
         exit(-1);
     }
     catch(...) {
-		std::cerr << "\nLexer: Unhandled exception!\n";
+		std::cerr << "\nLexer: Unhandled exception!" << std::endl;
 		//system( "pause" );
 		exit( -1 );
     }
@@ -213,19 +213,17 @@ void GA::Lexing::Lexer::readIdentifier( std::istream &input, const std::string& 
     char buf = 0;
     while(input && !input.eof()) {
         input.get( buf );
-        if(iswspace(buf))
-            break;
 		if (isalnum(buf) || buf == '_')
 		{
 			identifier << buf;
 			continue;
 		}
+
 		input.unget(  );
         break;
     }
-    std::string id = identifier.str();
 
-	std::cout << "'" << id << "'\n";
+    std::string id = identifier.str();
 
 	if (checkKeyword( id, sourceinfo ))
 		return;

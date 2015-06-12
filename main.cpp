@@ -11,7 +11,7 @@ using std::endl;
 
 GA::Options opts;
 
-GA::Options::Options() : Banner(true), DebugLexer(true), DebugGrammar(true) {
+GA::Options::Options() : Banner(true), DebugLexer(false), DebugGrammar(false) {
 
 }
 

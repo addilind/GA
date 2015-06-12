@@ -1,7 +1,7 @@
 S S0 P P0 D V I I0 I1 A E E0 E1 E2 E3 IDTAIL PARA PARA2
 S Function func id ( P ) D S0 #
-S0 FunctionConcat func S #
-S0 FunctionConcatEnd func #
+S0 FunctionConcat S #
+S0 FunctionConcatEnd #
 P FunctionParams id type P0 #
 P NoFunctionParam #
 P0 FunctionParamConcat , P #
@@ -19,12 +19,12 @@ I1 SimpleElse { V } #
 A VarAssign var id type := E #
 A ExprAssign E #
 E Expression E1 E0 #
-E0 SumExp + E0 #
-E0 SubExp - E0 #
+E0 SumExp + E1 E0 #
+E0 SubExp - E1 E0 #
 E0 SumExpEnd #
 E1 Term E3 E2 #
-E2 TermMult * E2 #
-E2 TermDiv / E2 #
+E2 TermMult * E3 E2 #
+E2 TermDiv / E3 E2 #
 E2 TermEnd #
 E3 Paren ( E ) #
 E3 Variable id IDTAIL #
@@ -35,5 +35,5 @@ IDTAIL CallParams ( PARA ) #
 IDTAIL VarLookup #
 PARA FirstParam E PARA2 #
 PARA NoParams #
-PARA ParaConcat , E PARA2 #
-PARA ParaEnd #
+PARA2 ParaConcat , E PARA2 #
+PARA2 ParaEnd #
