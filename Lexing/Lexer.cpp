@@ -86,7 +86,7 @@ void GA::Lexing::Lexer::Feed(std::istream &input) {
 }
 
 void GA::Lexing::Lexer::push(const GA::Lexing::TPtr &token) {
-    //std::cout << "Pushing " << token->ToString() << "\n";
+    std::cout << "Pushing " << token->ToString() << "\n";
 
     mOutput->Push(token);
 }
@@ -179,7 +179,7 @@ void GA::Lexing::Lexer::readParenthesis( std::istream &input, const std::string&
 		push( TPtr( new Token( Token::TYPE::OPENPARENTHESIS, sourceinfo ) ) );
 	else if (parenthesisChar == ')')
 		push( TPtr( new Token( Token::TYPE::CLOSEPARENTHESIS, sourceinfo ) ) );
-	if (parenthesisChar == '{')
+	else if (parenthesisChar == '{')
 		push( TPtr( new Token( Token::TYPE::OPENCURLY, sourceinfo ) ) );
 	else if (parenthesisChar == '}')
 		push( TPtr( new Token( Token::TYPE::CLOSECURLY, sourceinfo ) ) );
@@ -217,6 +217,7 @@ void GA::Lexing::Lexer::readIdentifier( std::istream &input, const std::string& 
 			identifier << buf;
 			continue;
 		}
+		input.putback( buf );
         break;
     }
     std::string id = identifier.str();
@@ -231,7 +232,7 @@ void GA::Lexing::Lexer::readIdentifier( std::istream &input, const std::string& 
             return entry->GetName() == id;
         });
     if(existingEntry == mSymbolTable->End())
-        symbolEntry = mSymbolTable->Insert(SymbolEntry(identifier.str()));
+        symbolEntry = mSymbolTable->Insert(SymbolEntry(id));
     else
         symbolEntry = existingEntry.GetCurrentEntryID();
 

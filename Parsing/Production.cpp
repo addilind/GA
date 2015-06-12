@@ -31,15 +31,23 @@ GA::Parsing::RecursiveDescentProduction::~RecursiveDescentProduction() {
 
 std::vector<const GA::Parsing::Production *> GA::Parsing::RecursiveDescentProduction::FitsInput( const GA::Lexing::Token *nextInput,
 	const ProductionLibrary* library ) const {
-	std::cout << library->GetProductionStateName( mSourceStateID ) << std::endl;
     //Get all Productions that resolve the first state of this Production
-	if (mSubStates.size() == 0)
+	if (mSubStates.size() == 0) {
+		std::cout << mASTRep << std::endl;
 		return std::vector<const GA::Parsing::Production *>( { static_cast<const Production*>(this) } );
-    
+	}
+
+	static int ident = 0;
+	++ident;
+
 	auto result = findPath( 0, nextInput, library );
 	if (result.size() == 0)
 		return result;
 
+	--ident;
+	for (int i = 0; i < ident; ++i)
+		std::cout << "  ";
+	std::cout << mASTRep << std::endl;
 	result.push_back( static_cast<const Production*>(this) );
     return result;
 }
