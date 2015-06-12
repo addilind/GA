@@ -7,7 +7,9 @@ set(SOURCE_FILES main.cpp)
 add_executable(ga ${SOURCE_FILES}
     Compiler.cpp Compiler.h
     Options.h
+	CountingStreamBuffer.cpp CountingStreamBuffer.h
     Datastructures/WIQueue.h
+    Datastructures/AST.h
     Datastructures/SkipList.h
     Lexing/SymbolEntry.cpp
     Lexing/Lexer.cpp Lexing/Lexer.h

@@ -5,9 +5,9 @@
 #include <thread>
 #include "Compiler.h"
 
-GA::Compiler::Compiler()
-    : mTokens(), mSymbolTable(),
-      mLexer(&mTokens, &mSymbolTable), mParser(&mTokens, &mSymbolTable) {
+GA::Compiler::Compiler( std::istream& productionSource )
+	: mTokens(), mSymbolTable(), mProductionLib( productionSource ),
+      mLexer(&mTokens, &mSymbolTable), mParser(&mTokens, &mSymbolTable, &mProductionLib) {
 
 }
 

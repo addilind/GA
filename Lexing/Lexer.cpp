@@ -8,6 +8,7 @@
 #include <sstream>
 #include <algorithm>
 #include "Lexer.h"
+#include "../CountingStreamBuffer.h"
 
 GA::Lexing::Lexer::Lexer(WIQueue<Token> * output, SkipList<SymbolEntry, SYMBOLTABLESKIPLEVELS> *symbolTable)
         : mOutput(output), mSymbolTable(symbolTable){
@@ -15,45 +16,48 @@ GA::Lexing::Lexer::Lexer(WIQueue<Token> * output, SkipList<SymbolEntry, SYMBOLTA
 }
 
 void GA::Lexing::Lexer::Feed(std::istream &input) {
+	CountingStreamBuffer cntstreambuf( input.rdbuf() );
+	std::istream in( &cntstreambuf );
     try {
-        while (input && !input.eof()) {
+        while (in && !in.eof()) {
             char peekChar = 0;
-            input >> peekChar;
-            input.putback(peekChar);
+            in >> peekChar;
+			std::string sourceinfo = std::to_string( cntstreambuf.lineNumber() ) + ":" + std::to_string( cntstreambuf.column() );
+            in.putback(peekChar);
 
             switch (peekChar) {
                 case '+':
                 case '-':
                 case '*':
                 case '/':
-                    readMathOp(input);
+					readMathOp( in, sourceinfo );
                     continue;
                 case ':':
-                    readAssignmentOp(input);
+					readAssignmentOp( in, sourceinfo );
                     continue;
                 case ';':
-                    readStatementEnd(input);
+					readStatementEnd( in, sourceinfo );
                     continue;
                 case '(':
                 case ')':
-                    readParenthesis(input);
+					readParenthesis( in, sourceinfo );
                     continue;
                 default:
                     break;
             }
 
             if (iswspace(peekChar) || peekChar == '\0') {
-                input >> peekChar;
+                in >> peekChar;
                 continue;
             }
             else if (isdigit(peekChar) || peekChar == '.')
-                readNumber(input);
+				readNumber( in, sourceinfo );
             else if (isalpha(peekChar))
-                readIdentifier(input);
+				readIdentifier( in, sourceinfo );
             else if (peekChar == '#') {
                 do {
-                    input.get(peekChar);
-                } while (input && !input.eof() && peekChar != '\n');
+                    in.get(peekChar);
+                } while (in && !in.eof() && peekChar != '\n');
             }
             else
                 throw std::runtime_error("Unrecognized input char " + std::to_string(static_cast<int>(peekChar)) + "!");
@@ -61,11 +65,11 @@ void GA::Lexing::Lexer::Feed(std::istream &input) {
         push(TPtr(new Token(Token::TYPE::END)));
     }
     catch(std::exception& ex) {
-        std::cerr << u8"\nLexer: Unhandled exception: " << ex.what() << u8"\n";
+        std::cerr << "\nLexer: Unhandled exception: " << ex.what() << "\n";
         exit(-1);
     }
     catch(...) {
-        std::cerr << u8"\nLexer: Unhandled exception!\n";
+        std::cerr << "\nLexer: Unhandled exception!\n";
         exit(-1);
     }
 }
@@ -76,28 +80,28 @@ void GA::Lexing::Lexer::push(const GA::Lexing::TPtr &token) {
     mOutput->Push(token);
 }
 
-void GA::Lexing::Lexer::readMathOp(std::istream &input) {
+void GA::Lexing::Lexer::readMathOp( std::istream &input, const std::string& sourceinfo ) {
     char operationChar = 0;
     input >> operationChar;
     switch (operationChar) {
         case '+':
-            push(TPtr(new MathematicalOpToken(Token::MathOperation::Plus)));
+			push( TPtr( new MathematicalOpToken( Token::MathOperation::Plus, sourceinfo ) ) );
             break;
         case '-':
-            push(TPtr(new MathematicalOpToken(Token::MathOperation::Minus)));
+			push( TPtr( new MathematicalOpToken( Token::MathOperation::Minus, sourceinfo ) ) );
             break;
         case '*':
-            push(TPtr(new MathematicalOpToken(Token::MathOperation::Times)));
+			push( TPtr( new MathematicalOpToken( Token::MathOperation::Times, sourceinfo ) ) );
             break;
         case '/':
-            push(TPtr(new MathematicalOpToken(Token::MathOperation::Divide)));
+			push( TPtr( new MathematicalOpToken( Token::MathOperation::Divide, sourceinfo ) ) );
             break;
         default:
             throw std::runtime_error("Lexer: Tried to read math operator, but next in stream is no math op!");
     }
 }
 
-void GA::Lexing::Lexer::readAssignmentOp(std::istream &input) {
+void GA::Lexing::Lexer::readAssignmentOp( std::istream &input, const std::string& sourceinfo ) {
     char assignmentChar = 0;
     input >> assignmentChar;
     if(assignmentChar != ':')
@@ -105,29 +109,29 @@ void GA::Lexing::Lexer::readAssignmentOp(std::istream &input) {
     input >> assignmentChar;
     if(assignmentChar != '=')
         throw std::runtime_error("Lexer: Tried to read assignment operator, but next in stream is no equals sign!");
-    push(TPtr(new Token(Token::TYPE::ASSIGNMENTOP)));
+	push( TPtr( new Token( Token::TYPE::ASSIGNMENTOP, sourceinfo ) ) );
 }
 
-void GA::Lexing::Lexer::readStatementEnd(std::istream &input) {
+void GA::Lexing::Lexer::readStatementEnd( std::istream &input, const std::string& sourceinfo ) {
     char eosChar = 0;
     input >> eosChar;
     if(eosChar != ';')
         throw std::runtime_error("Lexer: Tried to read end of statement, but next in stream is no semicolon!");
-    push(TPtr(new Token(Token::TYPE::ENDSTATEMENT)));
+	push( TPtr( new Token( Token::TYPE::ENDSTATEMENT, sourceinfo ) ) );
 }
 
-void GA::Lexing::Lexer::readParenthesis(std::istream &input) {
+void GA::Lexing::Lexer::readParenthesis( std::istream &input, const std::string& sourceinfo ) {
     char parenthesisChar = 0;
     input >> parenthesisChar;
     if( parenthesisChar == '(')
-        push(TPtr(new Token(Token::TYPE::OPENPARENTHESIS)));
+		push( TPtr( new Token( Token::TYPE::OPENPARENTHESIS, sourceinfo ) ) );
     else if( parenthesisChar == ')')
-        push(TPtr(new Token(Token::TYPE::CLOSEPARENTHESIS)));
+		push( TPtr( new Token( Token::TYPE::CLOSEPARENTHESIS, sourceinfo ) ) );
     else
         throw std::runtime_error("Lexer: Tried to read parenthesis, but next in stream is no parenthesis!");
 }
 
-void GA::Lexing::Lexer::readNumber(std::istream &input) {
+void GA::Lexing::Lexer::readNumber( std::istream &input, const std::string& sourceinfo ) {
     long value = 0;//Read integer part
     input >> value;
 
@@ -138,14 +142,14 @@ void GA::Lexing::Lexer::readNumber(std::istream &input) {
         double decimal = 0; //read decimal placed
         input >> decimal;
         decimal += value; //add previously read integer part
-        push(TPtr(new FloatValToken(decimal)));
+		push( TPtr( new FloatValToken( decimal, sourceinfo ) ) );
     }
     else { //Integer value
-        push(TPtr(new IntegerValToken(value)));
+		push( TPtr( new IntegerValToken( value, sourceinfo ) ) );
     }
 }
 
-void GA::Lexing::Lexer::readIdentifier(std::istream &input) {
+void GA::Lexing::Lexer::readIdentifier( std::istream &input, const std::string& sourceinfo ) {
     std::stringstream identifier;
     char buf = 0;
     while(input && !input.eof()) {
@@ -175,6 +179,6 @@ void GA::Lexing::Lexer::readIdentifier(std::istream &input) {
     else
         symbolEntry = existingEntry.GetCurrentEntryID();
 
-    push(TPtr(new IdentifierToken(symbolEntry)));
+    push(TPtr(new IdentifierToken(symbolEntry, sourceinfo)));
 }
 

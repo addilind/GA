@@ -7,6 +7,7 @@
 namespace GA {
     struct Options {
         bool Banner = true;
+		bool DebugGrammar = true;
 
         void ReadCommandline(int argc, char **argv);
     };

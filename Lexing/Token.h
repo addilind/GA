@@ -13,7 +13,7 @@ namespace GA {
         class Token {
         public:
             enum TYPE {
-                IDENTIFIER, MATHEMATICALOP, ASSIGNMENTOP, INTEGERVAL, FLOATVAL, OPENPARENTHESIS, CLOSEPARENTHESIS, ENDSTATEMENT, END
+                INVALID, IDENTIFIER, MATHEMATICALOP, ASSIGNMENTOP, INTEGERVAL, FLOATVAL, OPENPARENTHESIS, CLOSEPARENTHESIS, ENDSTATEMENT, END
             };
             enum MathOperation { Plus, Minus, Times, Divide };
         protected:
@@ -27,11 +27,12 @@ namespace GA {
             TYPE GetType() const;
             virtual std::string ToString() const;
             std::string GetSource() const;
+			virtual bool operator==(const Token& other) const;
 
-            size_t GetSymbolEntry();
-            MathOperation GetMathOp();
-            long GetIntValue();
-            double GetFloatValue();
+			size_t GetSymbolEntry() const;
+			MathOperation GetMathOp() const;
+			long GetIntValue() const;
+			double GetFloatValue() const;
         };
 
         class IdentifierToken : public Token {
@@ -41,8 +42,9 @@ namespace GA {
             IdentifierToken(size_t symbolEntry);
             IdentifierToken(size_t symbolEntry, const std::string &source);
             virtual ~IdentifierToken();
-            size_t GetSymbolEntry();
-            virtual std::string ToString() const override;
+			size_t GetSymbolEntry() const;
+			virtual std::string ToString() const override;
+			virtual bool operator==(const Token& other) const override;
         };
 
         class MathematicalOpToken : public Token {
@@ -54,8 +56,9 @@ namespace GA {
             MathematicalOpToken(MathOperation operation);
             MathematicalOpToken(MathOperation operation, const std::string &source);
             virtual ~MathematicalOpToken();
-            MathOperation GetMathOp();
-            virtual std::string ToString() const override;
+			MathOperation GetMathOp() const;
+			virtual std::string ToString() const override;
+			virtual bool operator==(const Token& other) const override;
         };
 
         class IntegerValToken : public Token {
@@ -66,8 +69,9 @@ namespace GA {
             IntegerValToken(long value);
             IntegerValToken(long value, const std::string &source);
             virtual ~IntegerValToken();
-            long GetIntValue();
-            virtual std::string ToString() const override;
+			long GetIntValue() const;
+			virtual std::string ToString() const override;
+			virtual bool operator==(const Token& other) const override;
         };
 
         class FloatValToken : public Token {
@@ -78,8 +82,9 @@ namespace GA {
             FloatValToken(double value);
             FloatValToken(double value, const std::string &source);
             virtual ~FloatValToken();
-            double GetFloatValue();
-            virtual std::string ToString() const override;
+			double GetFloatValue() const;
+			virtual std::string ToString() const override;
+			virtual bool operator==(const Token& other) const override;
         };
 
         typedef std::shared_ptr<GA::Lexing::Token> TPtr;

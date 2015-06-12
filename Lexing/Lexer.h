@@ -26,12 +26,12 @@ namespace GA {
             void Feed(std::istream &input);
         private:
             void push(const TPtr& token);
-            void readMathOp(std::istream &input);
-            void readAssignmentOp(std::istream &input);
-            void readStatementEnd(std::istream &input);
-            void readParenthesis(std::istream &input);
-            void readNumber(std::istream &input);
-            void readIdentifier(std::istream &input);
+            void readMathOp(std::istream &input, const std::string& sourceinfo);
+			void readAssignmentOp( std::istream &input, const std::string& sourceinfo );
+			void readStatementEnd( std::istream &input, const std::string& sourceinfo );
+			void readParenthesis( std::istream &input, const std::string& sourceinfo );
+			void readNumber( std::istream &input, const std::string& sourceinfo );
+			void readIdentifier( std::istream &input, const std::string& sourceinfo );
         };
     }
 }

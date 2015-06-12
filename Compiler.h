@@ -17,10 +17,12 @@ namespace GA {
         WIQueue<Lexing::Token> mTokens;
         SymbolTable mSymbolTable;
 
+		Parsing::ProductionLibrary mProductionLib;
+
         Lexing::Lexer mLexer;
         Parsing::Parser mParser;
     public:
-        Compiler();
+		Compiler( std::istream& productionSource );
 
         void Compile(std::istream& source);
     };

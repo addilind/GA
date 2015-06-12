@@ -30,7 +30,7 @@ GA::Lexing::IdentifierToken::IdentifierToken(size_t symbolEntry, const std::stri
 GA::Lexing::IdentifierToken::~IdentifierToken() {}
 
 
-size_t GA::Lexing::IdentifierToken::GetSymbolEntry() {
+size_t GA::Lexing::IdentifierToken::GetSymbolEntry() const {
     return mSymbolEntry;
 }
 
@@ -47,7 +47,7 @@ GA::Lexing::MathematicalOpToken::MathematicalOpToken(GA::Lexing::Token::MathOper
 
 GA::Lexing::MathematicalOpToken::~MathematicalOpToken() {}
 
-GA::Lexing::Token::MathOperation GA::Lexing::MathematicalOpToken::GetMathOp() {
+GA::Lexing::Token::MathOperation GA::Lexing::MathematicalOpToken::GetMathOp() const {
     return mOperation;
 }
 
@@ -62,7 +62,7 @@ GA::Lexing::IntegerValToken::IntegerValToken(long value, const std::string &sour
 
 GA::Lexing::IntegerValToken::~IntegerValToken() {}
 
-long GA::Lexing::IntegerValToken::GetIntValue() {
+long GA::Lexing::IntegerValToken::GetIntValue() const {
     return mValue;
 }
 
@@ -78,32 +78,32 @@ GA::Lexing::FloatValToken::FloatValToken(double value, const std::string &source
 
 GA::Lexing::FloatValToken::~FloatValToken() {}
 
-double GA::Lexing::FloatValToken::GetFloatValue() {
+double GA::Lexing::FloatValToken::GetFloatValue() const {
     return mValue;
 }
 
-size_t GA::Lexing::Token::GetSymbolEntry() {
+size_t GA::Lexing::Token::GetSymbolEntry() const{
     if(mType != TYPE::IDENTIFIER)
         throw std::runtime_error("Tried to GetSymbolEntry() on non identifier token!");
-    return static_cast<IdentifierToken*>(this)->GetSymbolEntry();
+	return static_cast<IdentifierToken const*>(this)->GetSymbolEntry();
 }
 
-GA::Lexing::Token::MathOperation GA::Lexing::Token::GetMathOp() {
+GA::Lexing::Token::MathOperation GA::Lexing::Token::GetMathOp() const {
     if(mType != TYPE::MATHEMATICALOP)
         throw std::runtime_error("Tried to GetMathOp() on non MathOperation token!");
-    return static_cast<MathematicalOpToken*>(this)->GetMathOp();
+	return static_cast<MathematicalOpToken const*>(this)->GetMathOp();
 }
 
-long GA::Lexing::Token::GetIntValue() {
+long GA::Lexing::Token::GetIntValue() const {
     if(mType != TYPE::INTEGERVAL)
         throw std::runtime_error("Tried to GetIntVal() on non IntegerValue token!");
-    return static_cast<IntegerValToken*>(this)->GetIntValue();
+	return static_cast<IntegerValToken const*>(this)->GetIntValue();
 }
 
-double GA::Lexing::Token::GetFloatValue() {
+double GA::Lexing::Token::GetFloatValue() const {
     if(mType != TYPE::FLOATVAL)
         throw std::runtime_error("Tried to GetFloatVal() on non FloatValue token!");
-    return static_cast<FloatValToken*>(this)->GetFloatValue();
+	return static_cast<FloatValToken const*>(this)->GetFloatValue();
 }
 
 std::string GA::Lexing::Token::ToString() const {
@@ -127,6 +127,13 @@ std::string GA::Lexing::IdentifierToken::ToString() const {
     return "IdentifierToken["+std::to_string(mSymbolEntry)+"]@"+mSource;
 }
 
+bool GA::Lexing::IdentifierToken::operator==(const Token& other) const
+{
+	if (other.GetType() != mType)
+		return false;
+	return other.GetSymbolEntry() == mSymbolEntry;
+}
+
 std::string GA::Lexing::MathematicalOpToken::ToString() const {
     switch (mOperation){
         case MathOperation::Plus:
@@ -140,14 +147,40 @@ std::string GA::Lexing::MathematicalOpToken::ToString() const {
     }
 }
 
+bool GA::Lexing::MathematicalOpToken::operator==(const Token& other) const
+{
+	if (other.GetType() != mType)
+		return false;
+	return other.GetMathOp() == mOperation;
+}
+
 std::string GA::Lexing::IntegerValToken::ToString() const {
     return "IntegerToken["+std::to_string(mValue)+"]@"+mSource;
+}
+
+bool GA::Lexing::IntegerValToken::operator==(const Token& other) const
+{
+	if (other.GetType() != mType)
+		return false;
+	return other.GetIntValue() == mValue;
 }
 
 std::string GA::Lexing::FloatValToken::ToString() const {
     return "FloatToken["+std::to_string(mValue)+"]@"+mSource;
 }
 
+bool GA::Lexing::FloatValToken::operator==(const Token& other) const
+{
+	if (other.GetType() != mType)
+		return false;
+	return other.GetFloatValue() == mValue;
+}
+
 std::string GA::Lexing::Token::GetSource() const {
     return mSource;
+}
+
+bool GA::Lexing::Token::operator==(const Token& other) const
+{
+	return (other.mType == mType); //If not overridden, check for type match only
 }
