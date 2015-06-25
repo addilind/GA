@@ -5,6 +5,8 @@
 #include "Options.h"
 #include <fstream>
 
+#pragma execution_character_set("utf-8")
+
 using std::cout;
 using std::cin;
 using std::endl;
@@ -30,7 +32,7 @@ int main(int argc, char** argv) {
 
         if(GA::opts.Banner) {
 			std::cout << "=== Go away compiler === build " __DATE__;
-			std::wcout << L" ===\n Fabian Grebe (736830), Adrian Müller (734922) " << endl;
+			std::cout << " ===\n Fabian Grebe (736830), Adrian Müller (734922) " << endl;
 
             cout << "Input code, NewLine + EOF (on Linux typically CTRL-D) to finish:" << endl;
         }

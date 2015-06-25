@@ -7,26 +7,40 @@
 namespace GA {
 	namespace Datastructures {
 		class ASTNode {
+		protected:
 			std::vector<ASTNode*> mChildren;
-			std::string mASTRep;
 		public:
-			inline explicit ASTNode( const std::string& astRep ) : mASTRep( astRep ) {
-			};
+			inline explicit ASTNode( ) {};
 
 			ASTNode( const ASTNode &source ) = delete;
 
-			inline std::string GetASTRep() { return mASTRep; };
+			virtual std::string GetASTRep() = 0;
 			inline void AddChild( ASTNode* child ) { mChildren.push_back( child ); }
-			inline void Print(int indent = 0)
-			{
-				for (int i = 0; i < indent - 1; ++i)
-					std::cout <<  u8"║ "; //"| ";//
-				if (indent >= 1)
-					std::cout <<  u8"╠═"; //"+-";//
-				std::cout << mASTRep << "\n";
-				for (auto child : mChildren)
-					child->Print( indent + 1 );
-			}
+			virtual void Print(int indent = 0) = 0;
 		};
+		namespace AST {
+			class DefaultASTNode : public ASTNode {
+				std::string mASTRep;
+			public:
+				inline explicit DefaultASTNode(const std::string &astRep) : mASTRep(astRep) {
+				};
+
+				DefaultASTNode(const DefaultASTNode &source) = delete;
+
+				virtual std::string GetASTRep() override { return mASTRep; };
+
+				virtual void Print(int indent = 0) {
+					for (int i = 0; i < indent; ++i)
+						std::cout << u8"║ "; //"| ";//
+					if(mChildren.size() > 0)
+						std::cout << u8"╠═╦"; //"+-";//
+					else
+						std::cout << u8"╠══";
+					std::cout << mASTRep << "\n";
+					for (auto child : mChildren)
+						child->Print(indent + 1);
+				}
+			};
+		}
 	}
 }

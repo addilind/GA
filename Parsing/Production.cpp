@@ -62,7 +62,7 @@ std::vector<const GA::Parsing::Production *> GA::Parsing::RecursiveDescentProduc
 GA::Datastructures::ASTNode* GA::Parsing::RecursiveDescentProduction::Read( Lexing::TokenStream& input, const ProductionLibrary* library,
 	std::vector<const Production*>* hint ) const
 {
-	auto result = new Datastructures::ASTNode( mASTRep );
+	auto result = new Datastructures::AST::DefaultASTNode( mASTRep );
 	size_t i = 0;
 	if (hint != nullptr)
 	{
@@ -144,5 +144,5 @@ std::vector<const GA::Parsing::Production *> GA::Parsing::TokenProduction::FitsI
 GA::Datastructures::ASTNode* GA::Parsing::TokenProduction::Read( Lexing::TokenStream& input, const ProductionLibrary* library,
 	std::vector<const Production*>* hint ) const
 {
-	return new Datastructures::ASTNode( input.Get()->ToString() );
+	return new Datastructures::AST::DefaultASTNode( input.Get()->ToString() );
 }
