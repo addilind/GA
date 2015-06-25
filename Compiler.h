@@ -8,14 +8,17 @@
 #include "Lexing/Lexer.h"
 #include "Lexing/Token.h"
 #include "Parsing/Parser.h"
+#include "Datastructures/AST.h"
 
 using GA::Datastructures::WIQueue;
-using GA::Lexing::SymbolTable;
+using GA::Lexing::IdentifierTable;
+using GA::Datastructures::ASTNode;
 
 namespace GA {
     class Compiler {
         WIQueue<Lexing::Token> mTokens;
-        SymbolTable mSymbolTable;
+        IdentifierTable mIdentifierTable;
+        ASTNode* mAST;
 
 		Parsing::ProductionLibrary mProductionLib;
 

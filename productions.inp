@@ -1,38 +1,38 @@
 S S0 P P0 D V I I0 I1 A E E0 E1 E2 E3 IDTAIL PARA PARA2
 S Function func id ( P ) D S0 #
-S0 FunctionConcat S #
-S0 FunctionConcatEnd #
+S0 -FunctionConcat S #
+S0 -FunctionConcatEnd #
 P FunctionParams id type P0 #
 P NoFunctionParam #
-P0 FunctionParamConcat , P #
-P0 FunctionParamsEnd #
+P0 -FunctionParamConcat , P #
+P0 -FunctionParamsEnd #
 D ReturningFuncBody type { V return E ; } #
 D FuncBody { V } #
-V IFSideEffect if I V #
-V AssSideEffect A ; V #
-V SideEffectEnd #
+V IFInstruction if I V #
+V AssignInstruction A ; V #
+V -InstructionEnd #
 I IFBody E { V } I0 #
-I0 Else else I1 #
-I0 EndIF #
+I0 -Else else I1 #
+I0 -EndIF #
 I1 ElseIf if I #
 I1 SimpleElse { V } #
 A VarAssign var id type := E #
-A ExprAssign E #
+A StandaloneExpr E #
 E Expression E1 E0 #
 E0 SumExp + E1 E0 #
 E0 SubExp - E1 E0 #
-E0 SumExpEnd #
+E0 -SumExpEnd #
 E1 Term E3 E2 #
 E2 TermMult * E3 E2 #
 E2 TermDiv / E3 E2 #
-E2 TermEnd #
+E2 -TermEnd #
 E3 Paren ( E ) #
 E3 Variable id IDTAIL #
 E3 Number num #
 E3 StringLit str #
 E3 Bool bool #
 IDTAIL CallParams ( PARA ) #
-IDTAIL VarLookup #
+IDTAIL -VarLookup #
 PARA FirstParam E PARA2 #
 PARA NoParams #
 PARA2 ParaConcat , E PARA2 #

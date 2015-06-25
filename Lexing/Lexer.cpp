@@ -11,8 +11,8 @@
 #include "../CountingStreamBuffer.h"
 #include "../Options.h"
 
-GA::Lexing::Lexer::Lexer(WIQueue<Token> * output, SkipList<SymbolEntry, SYMBOLTABLESKIPLEVELS> *symbolTable)
-        : mOutput(output), mSymbolTable(symbolTable){
+GA::Lexing::Lexer::Lexer(WIQueue<Token> * output, IdentifierTable *identifierTable)
+        : mOutput(output), mIdentifierTable(identifierTable){
 
 }
 
@@ -230,12 +230,12 @@ void GA::Lexing::Lexer::readIdentifier( std::istream &input, const std::string& 
 
     size_t symbolEntry = 0U;
 
-    auto existingEntry = std::find_if(mSymbolTable->Begin(), mSymbolTable->End(),
-        [id](SymbolEntry* entry)->bool {
+    auto existingEntry = std::find_if(mIdentifierTable->Begin(), mIdentifierTable->End(),
+        [id](IdentifierEntry * entry)->bool {
             return entry->GetName() == id;
         });
-    if(existingEntry == mSymbolTable->End())
-        symbolEntry = mSymbolTable->Insert(SymbolEntry(id));
+    if(existingEntry == mIdentifierTable->End())
+        symbolEntry = mIdentifierTable->Insert(IdentifierEntry(id));
     else
         symbolEntry = existingEntry.GetCurrentEntryID();
 

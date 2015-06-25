@@ -6,15 +6,15 @@
 #include "Compiler.h"
 
 GA::Compiler::Compiler( std::istream& productionSource )
-	: mTokens(), mSymbolTable(), mProductionLib( productionSource ),
-      mLexer(&mTokens, &mSymbolTable), mParser(&mTokens, &mSymbolTable, &mProductionLib) {
+	: mTokens(), mIdentifierTable(), mAST(nullptr), mProductionLib( productionSource ),
+      mLexer(&mTokens, &mIdentifierTable), mParser(&mTokens, &mIdentifierTable, &mAST, &mProductionLib) {
 
 }
 
 void GA::Compiler::Compile(std::istream &source) {
 	std::thread lexThread( &Lexing::Lexer::Feed, mLexer, std::ref( source ) );
-	lexThread.join();
-    std::thread parseThread(&Parsing::Parser::Run, mParser);
+	std::thread parseThread(&Parsing::Parser::Run, mParser);
 
+    lexThread.join();
     parseThread.join();
 }

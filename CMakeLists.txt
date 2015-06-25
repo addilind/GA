@@ -11,7 +11,7 @@ add_executable(ga ${SOURCE_FILES}
     Datastructures/WIQueue.h
     Datastructures/AST.h
     Datastructures/SkipList.h
-    Lexing/SymbolEntry.cpp
+    Lexing/Identifier.cpp
     Lexing/Lexer.cpp Lexing/Lexer.h
     Lexing/Token.cpp Lexing/Token.h
     Lexing/TokenStream.cpp Lexing/TokenStream.h

@@ -10,7 +10,8 @@
 #include "ProductionLibrary.h"
 
 using GA::Datastructures::WIQueue;
-using GA::Lexing::SymbolTable;
+using GA::Datastructures::ASTNode;
+using GA::Lexing::IdentifierTable;
 using GA::Lexing::Token;
 using GA::Lexing::TokenStream;
 using GA::Lexing::TPtr;
@@ -20,10 +21,11 @@ namespace GA {
 
 	    class Parser {
             TokenStream mTokenStream;
-            SymbolTable *mSymbolTable;
+            IdentifierTable *mSymbolTable;
+            ASTNode **mAST;
 			const ProductionLibrary *mProductionLibrary;
         public:
-            Parser(WIQueue<Token> *input, SymbolTable *symbolTable, const ProductionLibrary *productionLibrary );
+            Parser(WIQueue<Token> *input, IdentifierTable *symbolTable, ASTNode **ast, const ProductionLibrary *productionLibrary );
             virtual ~Parser();
 
             void Run();

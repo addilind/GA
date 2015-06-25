@@ -1,4 +1,6 @@
-﻿#include <mutex>
+﻿#pragma once
+
+#include <mutex>
 #include <vector>
 #include <iostream>
 

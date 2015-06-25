@@ -5,10 +5,11 @@
 #include <iostream>
 #include "Parser.h"
 
-using GA::Lexing::SymbolEntry;
+using GA::Lexing::IdentifierEntry;
 
-GA::Parsing::Parser::Parser( WIQueue<Token> *input, SymbolTable *symbolTable, const ProductionLibrary *productionLibrary )
-        :mTokenStream(input), mSymbolTable(symbolTable), mProductionLibrary(productionLibrary) {}
+GA::Parsing::Parser::Parser( WIQueue<Token> *input, IdentifierTable *symbolTable, ASTNode **ast,
+                             const ProductionLibrary *productionLibrary )
+        :mTokenStream(input), mSymbolTable(symbolTable), mAST(ast), mProductionLibrary(productionLibrary) {}
 
 GA::Parsing::Parser::~Parser() {
 
@@ -31,9 +32,9 @@ void GA::Parsing::Parser::Run() {
 
 					auto startProduction = mProductionLibrary->GetProductions( 0 ); //Always start at the first production
 
-					Datastructures::ASTNode* ast = (*startProduction)[0]->Read( mTokenStream, mProductionLibrary, nullptr );
+					*mAST = (*startProduction)[0]->Read( mTokenStream, mProductionLibrary, nullptr );
 
-					ast->Print();
+                    (*mAST)->Print();
                 };
             }
         }

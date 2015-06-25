@@ -7,7 +7,7 @@
 #include "../Datastructures/WIQueue.h"
 #include "../Datastructures/SkipList.h"
 #include "Token.h"
-#include "SymbolEntry.h"
+#include "Identifier.h"
 
 using GA::Datastructures::WIQueue;
 using GA::Datastructures::SkipList;
@@ -19,9 +19,9 @@ namespace GA {
         class Lexer {
         private:
             WIQueue<Token> *mOutput;
-            SymbolTable *mSymbolTable;
+            IdentifierTable *mIdentifierTable;
         public:
-            Lexer(WIQueue<Token> *output, SkipList<SymbolEntry, SYMBOLTABLESKIPLEVELS> *symbolTable);
+            Lexer(WIQueue<Token> *output, IdentifierTable *identifierTable);
 
             void Feed(std::istream &input);
         private:

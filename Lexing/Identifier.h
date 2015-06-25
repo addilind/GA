@@ -11,7 +11,7 @@
 
 namespace GA {
     namespace Lexing {
-        class SymbolEntry {
+        class IdentifierEntry {
         public:
             enum TYPE { UNDEFINED, INTEGER, FLOAT };
         private:
@@ -19,11 +19,11 @@ namespace GA {
             TYPE mType;
             std::shared_ptr<void> mValue;
         public:
-            SymbolEntry();
-            SymbolEntry(const std::string& name);
-            SymbolEntry(const std::string& name, const long& value);
-            SymbolEntry(const std::string& name, const double& value);
-            ~SymbolEntry();
+            IdentifierEntry();
+            IdentifierEntry(const std::string& name);
+            IdentifierEntry(const std::string& name, const long& value);
+            IdentifierEntry(const std::string& name, const double& value);
+            ~IdentifierEntry();
 
             std::string GetName() const;
             TYPE GetType() const;
@@ -33,8 +33,8 @@ namespace GA {
             double GetFloat() const;
             std::shared_ptr<void> GetValue() const;
         };
-        static const int SYMBOLTABLESKIPLEVELS = 5;//5 Skip-Level = skipping up to 16 entries
-        typedef Datastructures::SkipList<SymbolEntry, SYMBOLTABLESKIPLEVELS> SymbolTable;
+        static const int IDENTIFIERTABLESKIPLEVELS = 5;//5 Skip-Level = skipping up to 16 entries
+        typedef Datastructures::SkipList<IdentifierEntry, IDENTIFIERTABLESKIPLEVELS> IdentifierTable;
     }
 }
 
