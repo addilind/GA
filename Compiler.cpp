@@ -6,8 +6,10 @@
 #include "Compiler.h"
 
 GA::Compiler::Compiler( std::istream& productionSource )
-	: mTokens(), mIdentifierTable(), mAST(nullptr), mProductionLib( productionSource ),
-      mLexer(&mTokens, &mIdentifierTable), mParser(&mTokens, &mIdentifierTable, &mAST, &mProductionLib) {
+	: mTokens(), mIdentifierTable(), mAST(nullptr),
+      mProductionLib( productionSource ), mLLVMContext(),
+      mLexer(&mTokens, &mIdentifierTable), mParser(&mTokens, &mIdentifierTable, &mAST, &mProductionLib),
+      mIRGen(&mLLVMContext ){
 
 }
 
@@ -17,4 +19,9 @@ void GA::Compiler::Compile(std::istream &source) {
 
     lexThread.join();
     parseThread.join();
+
+    if(mAST == nullptr)
+        throw std::runtime_error("No AST produced by Parser!");
+
+    mIRGen.Build(mAST);
 }

@@ -11,7 +11,7 @@ GA::Parsing::ProductionLibrary::ProductionLibrary(std::istream& source)
 	//Single root production points to first user defined production
 	std::vector<ProductionState> tmp;
 	tmp.push_back( 1U );
-	mProductions.push_back( std::vector<Production*>( { new RecursiveDescentProduction( 0U, "root", tmp ) } ) );
+	mProductions.push_back( std::vector<Production*>( { new RecursiveDescentProduction( 0U, "root", tmp, true ) } ) );
 	mProductionStateNames.push_back( "# root" );
 
 	std::map<std::string, ProductionState> stateNameLookup;
@@ -40,6 +40,7 @@ GA::Parsing::ProductionLibrary::ProductionLibrary(std::istream& source)
 		source >> astRep;
 
 		std::vector<ProductionState> subStates;
+		bool newScope = false;
 		while (source && !source.eof())
 		{
 			std::string nextSubstateName;
@@ -48,6 +49,10 @@ GA::Parsing::ProductionLibrary::ProductionLibrary(std::istream& source)
 				continue;
 			if (nextSubstateName == "#")
 				break;
+			if(nextSubstateName == "##") {
+				newScope = true;
+				break;
+			}
 			auto subStateNameLookup = stateNameLookup.find( nextSubstateName );
 			if (subStateNameLookup == stateNameLookup.end())
 				throw std::runtime_error( "Cannot find production for '" + nextSubstateName + "', it was not defined as a non-terminal or input token!" );
@@ -55,7 +60,8 @@ GA::Parsing::ProductionLibrary::ProductionLibrary(std::istream& source)
 			subStates.push_back( subStateNameLookup->second );
 		}
 
-		mProductions.at( sourceState ).push_back( new RecursiveDescentProduction( sourceState, std::move(astRep), std::move(subStates) ) );
+		mProductions.at( sourceState ).push_back(
+				new RecursiveDescentProduction( sourceState, std::move(astRep), std::move(subStates), newScope ) );
 	}
 }
 

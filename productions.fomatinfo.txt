@@ -2,6 +2,8 @@ First line: space separated list of all states
 1 Production per line, information separated by spaces:
     Source State
     Production name (hardcoded values to couple with meanings)
+        If starting with digit two (2): interpreted as a mathematical binary operation
+        If starting with a dash (-): interpreted as a helper, not given its on Node in the AST
     Child productions / one of the following (hardcoded) tokens:
         id, num, str, bool, (, ), {, }, :=, ;, ,, type, +, -, *, /,
         ==, !=, <, <=, >, >=, !, func, if, else, package, import, var, return

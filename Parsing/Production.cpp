@@ -21,8 +21,9 @@ GA::Parsing::ProductionState GA::Parsing::Production::GetSourceState() const {
 
 
 GA::Parsing::RecursiveDescentProduction::RecursiveDescentProduction
-( GA::Parsing::ProductionState sourceState, const std::string& astRep, const std::vector<GA::Parsing::ProductionState>& subStates )
-	: Production( sourceState, astRep ), mSubStates( subStates ){
+( GA::Parsing::ProductionState sourceState, const std::string& astRep,
+  const std::vector<GA::Parsing::ProductionState>& subStates, bool newScope )
+	: Production( sourceState, astRep ), mSubStates( subStates ), mNewScope(newScope){
 }
 
 GA::Parsing::RecursiveDescentProduction::~RecursiveDescentProduction() {
@@ -59,10 +60,14 @@ std::vector<const GA::Parsing::Production *> GA::Parsing::RecursiveDescentProduc
     return result;
 }
 
-GA::Datastructures::ASTNode* GA::Parsing::RecursiveDescentProduction::Read( Lexing::TokenStream& input, const ProductionLibrary* library,
+GA::CodeGen::ASTNode* GA::Parsing::RecursiveDescentProduction::Read( Lexing::TokenStream& input, const ProductionLibrary* library,
 	std::vector<const Production*>* hint ) const
 {
-	auto result = new Datastructures::AST::DefaultASTNode( mASTRep );
+	CodeGen::ASTNode* result = nullptr;
+    if(mASTRep[0] == '2')
+        result = new CodeGen::AST::BinOpASTNode( mASTRep );
+    else
+        result = new CodeGen::AST::DefaultASTNode( mASTRep );
 	size_t i = 0;
 	if (hint != nullptr)
 	{
@@ -74,7 +79,11 @@ GA::Datastructures::ASTNode* GA::Parsing::RecursiveDescentProduction::Read( Lexi
 		}
 		auto hinted = hint->back();
 		hint->pop_back();
-		result->AddChild(hinted->Read( input, library, hint ));
+        auto newchild = hinted->Read( input, library, hint );
+        if(newchild->GetASTRep()[0] == '-')
+            result->AddMerge(newchild);
+        else
+            result->AddChild(newchild);
 		++i;
 	}
 	for (; i < mSubStates.size(); ++i)
@@ -88,7 +97,11 @@ GA::Datastructures::ASTNode* GA::Parsing::RecursiveDescentProduction::Read( Lexi
 
 		auto immediatechild = subtree.back();
 		subtree.pop_back();
-		result->AddChild( immediatechild->Read( input, library, &subtree ) );
+		auto newchild = immediatechild->Read( input, library, &subtree );
+        if(newchild->GetASTRep()[0] == '-')
+            result->AddMerge(newchild);
+        else
+            result->AddChild(newchild);
 	}
 	return result;
 }
@@ -141,8 +154,23 @@ std::vector<const GA::Parsing::Production *> GA::Parsing::TokenProduction::FitsI
 	return std::vector<const Production *>();
 }
 
-GA::Datastructures::ASTNode* GA::Parsing::TokenProduction::Read( Lexing::TokenStream& input, const ProductionLibrary* library,
+GA::CodeGen::ASTNode* GA::Parsing::TokenProduction::Read( Lexing::TokenStream& input, const ProductionLibrary* library,
 	std::vector<const Production*>* hint ) const
 {
-	return new Datastructures::AST::DefaultASTNode( input.Get()->ToString() );
+	auto token = input.Get();
+	switch (token->GetType()) {
+		case GA::Lexing::Token::TYPE::FLOATVAL:
+			return new CodeGen::AST::FPLiteralASTNode( token->GetFloatValue() );
+        default:
+            break;
+	}
+	return new CodeGen::AST::DefaultASTNode( token->ToString() );
+}
+
+bool GA::Parsing::Production::GetNewScope() const {
+	return false;
+}
+
+bool GA::Parsing::RecursiveDescentProduction::GetNewScope() const {
+	return mNewScope;
 }

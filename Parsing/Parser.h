@@ -10,7 +10,7 @@
 #include "ProductionLibrary.h"
 
 using GA::Datastructures::WIQueue;
-using GA::Datastructures::ASTNode;
+using GA::CodeGen::ASTNode;
 using GA::Lexing::IdentifierTable;
 using GA::Lexing::Token;
 using GA::Lexing::TokenStream;

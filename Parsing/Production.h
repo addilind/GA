@@ -8,7 +8,7 @@
 #include <vector>
 #include "../Lexing/Token.h"
 #include "../Lexing/TokenStream.h"
-#include "../Datastructures/AST.h"
+#include "../CodeGen/AST.h"
 
 namespace GA{namespace Lexing{
 	class TokenStream;
@@ -30,20 +30,24 @@ namespace GA {
 
             virtual std::vector<const Production*> FitsInput(const Lexing::Token* nextInput, const ProductionLibrary* library) const = 0;
             ProductionState GetSourceState() const;
-			virtual Datastructures::ASTNode* Read( Lexing::TokenStream& input, const ProductionLibrary* library,
+			virtual CodeGen::ASTNode* Read( Lexing::TokenStream& input, const ProductionLibrary* library,
 				std::vector<const Production*>* hint = nullptr ) const = 0;
+            virtual bool GetNewScope() const;
         };
 
         class RecursiveDescentProduction : public Production {
         private:
             std::vector<ProductionState> mSubStates;
+            bool mNewScope;
         public:
-			RecursiveDescentProduction( ProductionState sourceState, const std::string& astRep, const std::vector<ProductionState>& subStates );
+			RecursiveDescentProduction( ProductionState sourceState, const std::string& astRep,
+                                        const std::vector<ProductionState>& subStates, bool newScope );
             virtual ~RecursiveDescentProduction();
 
 			virtual std::vector<const Production*> FitsInput( const Lexing::Token* nextInput, const ProductionLibrary* library ) const override;
-			virtual Datastructures::ASTNode* Read( Lexing::TokenStream& input, const ProductionLibrary* library,
+			virtual CodeGen::ASTNode* Read( Lexing::TokenStream& input, const ProductionLibrary* library,
 				std::vector<const Production*>* hint = nullptr ) const override;
+            virtual bool GetNewScope() const override;
 		private:
 			std::vector<const Production*> findPath( size_t subProduction, const Lexing::Token* nextInput, const ProductionLibrary* library ) const;
         };
@@ -58,7 +62,7 @@ namespace GA {
             ~TokenProduction();
 
 			virtual std::vector<const Production*> FitsInput( const Lexing::Token* nextInput, const ProductionLibrary* library ) const override;
-			virtual Datastructures::ASTNode* Read( Lexing::TokenStream& input, const ProductionLibrary* library,
+			virtual CodeGen::ASTNode* Read( Lexing::TokenStream& input, const ProductionLibrary* library,
 				std::vector<const Production*>* hint = nullptr ) const override;
         };
     }

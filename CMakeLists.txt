@@ -15,7 +15,7 @@ add_executable(ga main.cpp
     Options.h
 	CountingStreamBuffer.cpp CountingStreamBuffer.h
     Datastructures/WIQueue.h
-    Datastructures/AST.h
+    CodeGen/AST.h
     Datastructures/SkipList.h
     Lexing/Identifier.cpp
     Lexing/Lexer.cpp Lexing/Lexer.h
@@ -24,7 +24,7 @@ add_executable(ga main.cpp
     Lexing/TokenLibrary.h Lexing/TokenLibrary.cpp
     Parsing/Parser.cpp Parsing/Parser.h
     Parsing/ProductionLibrary.cpp Parsing/ProductionLibrary.h
-    Parsing/Production.cpp Parsing/Production.h)
+    Parsing/Production.cpp Parsing/Production.h llvm.h CodeGen/IRGenerator.cpp CodeGen/IRGenerator.h CodeGen/AST.cpp CodeGen/SymbolEntry.cpp CodeGen/SymbolEntry.h)
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)
 

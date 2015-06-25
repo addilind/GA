@@ -1,9 +1,9 @@
 func isEven(i int) bool {
     var ret bool := false;
-    if i {
+    if i >= 2 {
         var ret bool := true;
     } else {
-        var half int := i * 2;
+        var half int := i * 2.0;
         var full int := 2;
         if full {
             var ret bool := true;
