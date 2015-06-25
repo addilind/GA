@@ -6,16 +6,16 @@ P FunctionParams id type P0 #
 P NoFunctionParam #
 P0 FunctionParamConcat , P #
 P0 FunctionParamsEnd #
-D ReturningFuncBody type { V return E ; } #
-D FuncBody { V } #
+D ReturningFuncBody type { V return E ; } ##
+D FuncBody { V } ##
 V IFInstruction if I V #
 V AssignInstruction A ; V #
 V InstructionEnd #
-I IFBody E { V } I0 #
+I IFBody E D I0 #
 I0 Else else I1 #
 I0 EndIF #
 I1 ElseIf if I #
-I1 SimpleElse { V } #
+I1 SimpleElse D #
 A VarAssign var id type := E #
 A StandaloneExpr E #
 E Expression E1 E0 #

@@ -5,8 +5,6 @@
 #include "Options.h"
 #include <fstream>
 
-#pragma execution_character_set("utf-8")
-
 using std::cout;
 using std::cin;
 using std::endl;

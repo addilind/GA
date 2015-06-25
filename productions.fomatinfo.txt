@@ -1,0 +1,9 @@
+First line: space separated list of all states
+1 Production per line, information separated by spaces:
+    Source State
+    Production name (hardcoded values to couple with meanings)
+    Child productions / one of the following (hardcoded) tokens:
+        id, num, str, bool, (, ), {, }, :=, ;, ,, type, +, -, *, /,
+        ==, !=, <, <=, >, >=, !, func, if, else, package, import, var, return
+    # or ## to end a line
+        ## creates a new scope for child productions
