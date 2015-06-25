@@ -185,25 +185,25 @@ namespace GA {
                                                      llvm::Value *right, IRGenerator &context) {
                 switch (operation) {
                     case Token::MathOperation::Plus:
-                        return context.GetBuilder()->CreateAdd(left, right, "floatadd");
+                        return context.GetBuilder()->CreateAdd(left, right, "intadd");
                     case Token::MathOperation::Minus:
-                        return context.GetBuilder()->CreateSub(left, right, "floatmin");
+                        return context.GetBuilder()->CreateSub(left, right, "intmin");
                     case Token::MathOperation::Times:
-                        return context.GetBuilder()->CreateMul(left, right, "floattimes");
+                        return context.GetBuilder()->CreateMul(left, right, "inttimes");
                     case Token::MathOperation::Divide:
-                        return context.GetBuilder()->CreateSDiv(left, right, "floatdivide");
+                        return context.GetBuilder()->CreateSDiv(left, right, "intdivide");
                     case Token::MathOperation::Equal:
-                        return context.GetBuilder()->CreateICmpEQ(left, right, "floatequals");
+                        return context.GetBuilder()->CreateICmpEQ(left, right, "intequals");
                     case Token::MathOperation::NotEqual:
-                        return context.GetBuilder()->CreateICmpNE(left, right, "floatnotequals");
+                        return context.GetBuilder()->CreateICmpNE(left, right, "intnotequals");
                     case Token::MathOperation::Less:
-                        return context.GetBuilder()->CreateICmpSLT(left, right, "floatless");
+                        return context.GetBuilder()->CreateICmpSLT(left, right, "intless");
                     case Token::MathOperation::LessEqual:
-                        return context.GetBuilder()->CreateICmpSLE(left, right, "floatlesseq");
+                        return context.GetBuilder()->CreateICmpSLE(left, right, "intlesseq");
                     case Token::MathOperation::Greater:
-                        return context.GetBuilder()->CreateICmpSGT(left, right, "floatgreater");
+                        return context.GetBuilder()->CreateICmpSGT(left, right, "intgreater");
                     case Token::MathOperation::GreaterEqual:
-                        return context.GetBuilder()->CreateICmpSGE(left, right, "floatgreatereq");
+                        return context.GetBuilder()->CreateICmpSGE(left, right, "intgreatereq");
                     default:
                         throw std::runtime_error("Unpredicted MathOperator " + GetASTRep());
                 }
@@ -211,12 +211,20 @@ namespace GA {
 
             llvm::Value *BinOpASTNode::generateBoolOp(Token::MathOperation operation, llvm::Value *left,
                                                       llvm::Value *right, IRGenerator &context) {
-                return nullptr;
+                switch (operation) {
+                    case Token::MathOperation::Equal:
+                        return context.GetBuilder()->CreateICmpEQ(left, right, "boolequals");
+                    case Token::MathOperation::NotEqual:
+                        return context.GetBuilder()->CreateICmpNE(left, right, "boolnotequals");
+                    default:
+                        throw std::runtime_error("Unpredicted MathOperator " + GetASTRep());
+                }
             }
         }
 
         void ASTNode::AddMerge(ASTNode *source) {
             mChildren.insert(mChildren.end(), source->mChildren.begin(), source->mChildren.end());
+            delete source;
         }
 
         void ASTNode::AddChild(ASTNode *child) {

@@ -13,6 +13,7 @@ namespace GA {
 		protected:
 			std::vector<ASTNode*> mChildren;
 		public:
+            virtual ~ASTNode() {};
 			inline explicit ASTNode( ) {};
 
 			ASTNode( const ASTNode &source ) = delete;

@@ -1,5 +1,5 @@
 First line: space separated list of all states
-1 Production per line, information separated by spaces:
+1 Production per line, information separated by spaces, first state is starting state:
     Source State
     Production name (hardcoded values to couple with meanings)
         If starting with digit two (2): interpreted as a mathematical binary operation

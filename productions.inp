@@ -1,4 +1,4 @@
-S S0 P P0 D V I I0 I1 A E E0 E1 E2 E3 IDTAIL PARA PARA2 C C0
+S S0 P P0 D V I I0 I1 A E E0 E1 E2 E3 IDTAIL PARA PARA2 C C0 SC
 S Function func id ( P ) D S0 #
 S0 -FunctionConcat S #
 S0 -FunctionConcatEnd #
@@ -8,14 +8,17 @@ P0 -FunctionParamConcat , P #
 P0 -FunctionParamsEnd #
 D ReturningFuncBody type { V return C ; } ##
 D FuncBody { V } ##
+D ReturningFunctionPrototype type ; #
+D VoidFunctionPrototype ; #
 V IFInstruction if I V #
 V AssignInstruction A ; V #
 V InstructionsEnd #
-I IFBody C D I0 #
+SC ScopeBlock { V } ##
+I IFBody C SC I0 #
 I0 -Else else I1 #
 I0 EndIF #
 I1 ElseIf if I #
-I1 SimpleElse D #
+I1 SimpleElse SC #
 A VarAssign var id type := C #
 A StandaloneExpr C #
 C 2ComparisonTest E C0 #
