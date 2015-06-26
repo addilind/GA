@@ -1,21 +1,19 @@
-func printf(outp string , format string);
-func printf( ) int;
-
 func isEven(i int) bool {
     var ret bool := false;
-    if i >= 2 {
-        var ret bool := true;
-    } else {
-        var half int := i * 2.0;
-        var full int := 2;
-        if full > true {
-            var ret bool := true;
-        }
-    }
-    return ret;
+#    if i >= 2 {
+#        var ret bool := true;
+#    } else {
+#        var half int := i * 2.0;
+#        var full int := 2;
+#        if full > true {
+#            var ret bool := true;
+#        }
+#    }
+    return false;#ret;
 }
 
-func main() {
+func main() float {
     var abc int := 0-1;
-    isEven(abc * (5 - 7) );
+    isEven(5 - 7 );
+    return 1.5;
 }

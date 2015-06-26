@@ -6,7 +6,7 @@
 
 GA::CodeGen::IRGenerator::IRGenerator(llvm::LLVMContext *llvmContext, GA::Lexing::IdentifierTable* identifierTable)
     : mBuilder(*llvmContext), mLLVMContext(llvmContext), mModule("GoFile", *llvmContext),
-      mIdentifierTable(identifierTable), mSymbolTable() {
+      mIdentifierTable(identifierTable), /*mSymbolTable(),*/ mNamedVals() {
 
 }
 
@@ -32,4 +32,8 @@ llvm::Module *GA::CodeGen::IRGenerator::GetModule() {
 
 GA::Lexing::IdentifierTable *GA::CodeGen::IRGenerator::GetIdTable() {
     return mIdentifierTable;
+}
+
+std::map<std::string, llvm::AllocaInst *> *GA::CodeGen::IRGenerator::GetNamedVals() {
+    return &mNamedVals;
 }

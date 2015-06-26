@@ -330,6 +330,14 @@ bool GA::Lexing::Lexer::checkKeyword(const std::string& id, const std::string& s
 		push( TPtr( new ValTypeToken( Token::ValType::Void, sourceinfo ) ) );
 		return true;
 	}
+	else if (id == "true") {
+		push( TPtr( new BooleanValToken(true, sourceinfo ) ) );
+		return true;
+	}
+	else if (id == "false") {
+		push( TPtr( new BooleanValToken(false, sourceinfo ) ) );
+		return true;
+	}
 	return false;
 }
 

@@ -107,6 +107,10 @@ namespace GA {
                 virtual ASTResult GenerateCode(IRGenerator& context) override;
             };
             class FunctionASTNode : public DefaultASTNode {
+            private:
+                ASTResult generateThisCode(IRGenerator& context);
+                llvm::AllocaInst *createEntryBlockAlloca(llvm::Function* funct,
+                    const std::string &varName, llvm::Type* type);
             public:
                 explicit FunctionASTNode(const std::string& astRep);
                 FunctionASTNode(const FunctionASTNode& source)=delete;
@@ -132,6 +136,12 @@ namespace GA {
                 virtual ASTResult GenerateCode(IRGenerator& context) override;
                 FUNCTYPE GetFuncType();
                 llvm::Type* GetReturnType(IRGenerator& context);
+            };
+            class AssignmentASTNode : public DefaultASTNode {
+            public:
+                explicit AssignmentASTNode();
+                AssignmentASTNode(const AssignmentASTNode& source) = delete;
+                virtual ASTResult GenerateCode(IRGenerator& context) override;
             };
         }
 	}

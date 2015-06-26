@@ -74,9 +74,11 @@ GA::CodeGen::ASTNode* GA::Parsing::RecursiveDescentProduction::Read( Lexing::Tok
         result = new CodeGen::AST::FunctionTypeASTNode(CodeGen::AST::FunctionTypeASTNode::FUNCTYPE::VoidDef);
     else if(mASTRep == "VoidFuncPrototype")
         result = new CodeGen::AST::FunctionTypeASTNode(CodeGen::AST::FunctionTypeASTNode::FUNCTYPE::VoidDecl);
-    else if(mASTRep == "ReturningFunc")
-        result = new CodeGen::AST::FunctionTypeASTNode(CodeGen::AST::FunctionTypeASTNode::FUNCTYPE::RetDef);
-    else
+	else if(mASTRep == "ReturningFunc")
+		result = new CodeGen::AST::FunctionTypeASTNode(CodeGen::AST::FunctionTypeASTNode::FUNCTYPE::RetDecl);
+	else if(mASTRep == "VarAssign")
+		result = new CodeGen::AST::AssignmentASTNode();
+	else
         result = new CodeGen::AST::DefaultASTNode( mASTRep );
 
 	size_t i = 0;
