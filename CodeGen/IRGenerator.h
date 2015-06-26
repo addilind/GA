@@ -19,7 +19,7 @@ namespace GA {
             llvm::Module mModule;
 
             GA::Lexing::IdentifierTable* mIdentifierTable;
-            std::map<std::string, llvm::AllocaInst*> mNamedVals;
+            std::map<std::string, llvm::Value*> mNamedVals;
         public:
             IRGenerator(llvm::LLVMContext *llvmContext, GA::Lexing::IdentifierTable* identifierTable);
             ~IRGenerator();
@@ -28,7 +28,7 @@ namespace GA {
             llvm::LLVMContext* GetLLVMContext();
             llvm::Module* GetModule();
             GA::Lexing::IdentifierTable* GetIdTable();
-            std::map<std::string, llvm::AllocaInst*>* GetNamedVals();
+            std::map<std::string, llvm::Value*>* GetNamedVals();
 
             void Build(ASTNode *ast);
         };

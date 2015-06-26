@@ -231,8 +231,8 @@ namespace GA {
                             static_cast<IdentifierASTNode*>(mChildren[0])->GetId())->GetName();
                     llvm::Value *V = (*context.GetNamedVals())[varname];
                     if(V == nullptr)
-                        throw std::runtime_error("Unknown variable!");
-                    return context.GetBuilder()->CreateLoad(V, varname.c_str());
+                        throw std::runtime_error("Unknown variable!" + varname);
+                    return V;
                 }
                 else { //Function call
                     std::string name = context.GetIdTable()->Get(
@@ -346,6 +346,7 @@ namespace GA {
                 for (llvm::Function::arg_iterator AI = func->arg_begin(); Idx != arguments.size();
                      ++AI, ++Idx) {
                     AI->setName(argumentNames[Idx]);
+                    (*context.GetNamedVals())[argumentNames[Idx]] = AI;
                 }
                 switch(static_cast<FunctionTypeASTNode*>(nfunctype)->GetFuncType()) {
                     case FunctionTypeASTNode::FUNCTYPE::RetDecl:
@@ -357,15 +358,6 @@ namespace GA {
                 llvm::BasicBlock *BB = llvm::BasicBlock::Create(*context.GetLLVMContext(),
                                                                 "entry", func);
                 context.GetBuilder()->SetInsertPoint(BB);
-
-                for (llvm::Function::arg_iterator AI = func->arg_begin(); Idx != arguments.size();
-                     ++AI, ++Idx) {
-                    llvm::AllocaInst *alloca = createEntryBlockAlloca(func, argumentNames[Idx], arguments[Idx]);
-
-                    context.GetBuilder()->CreateStore(AI, alloca);
-
-                    (*context.GetNamedVals())[argumentNames[Idx]] = alloca;
-                }
 
 
                 context.GetBuilder()->CreateRet(nfunctype->GenerateCode(context).getVal());
@@ -516,12 +508,6 @@ namespace GA {
                 return res;
             }
 
-            llvm::AllocaInst *FunctionASTNode::createEntryBlockAlloca(llvm::Function* funct, const std::string &varName,
-                                                                      llvm::Type* type) {
-                llvm::IRBuilder<> TmpB(&funct->getEntryBlock(),funct->getEntryBlock().begin());
-                return TmpB.CreateAlloca(type, 0, varName.c_str());
-            }
-
             AssignmentASTNode::AssignmentASTNode()
                 : DefaultASTNode("Assignment"){
 
@@ -536,6 +522,8 @@ namespace GA {
                 if((*context.GetNamedVals())[varname] != nullptr)
                     throw std::runtime_error("Var already defined!");
 
+                (*context.GetNamedVals())[varname] = mChildren.at(4)->GenerateCode(context).getVal();
+                return (*context.GetNamedVals())[varname];
             }
         }
 

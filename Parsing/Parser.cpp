@@ -34,7 +34,7 @@ void GA::Parsing::Parser::Run() {
 
 					*mAST = (*startProduction)[0]->Read( mTokenStream, mProductionLibrary, nullptr );
 
-                    (*mAST)->Print();
+                    //(*mAST)->Print();
                 };
             }
         }

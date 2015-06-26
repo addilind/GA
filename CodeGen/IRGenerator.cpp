@@ -34,6 +34,6 @@ GA::Lexing::IdentifierTable *GA::CodeGen::IRGenerator::GetIdTable() {
     return mIdentifierTable;
 }
 
-std::map<std::string, llvm::AllocaInst *> *GA::CodeGen::IRGenerator::GetNamedVals() {
+std::map<std::string, llvm::Value *> *GA::CodeGen::IRGenerator::GetNamedVals() {
     return &mNamedVals;
 }

@@ -1,19 +1,19 @@
-func isEven(i int) bool {
-    var ret bool := false;
-#    if i >= 2 {
-#        var ret bool := true;
-#    } else {
-#        var half int := i * 2.0;
-#        var full int := 2;
-#        if full > true {
-#            var ret bool := true;
-#        }
-#    }
-    return false;#ret;
+func print(out float) int {
+    #replaceme
+    return 0;
 }
 
-func main() float {
-    var abc int := 0-1;
-    isEven(5 - 7 );
-    return 1.5;
+func testfunc(i float) float {
+    var ret float := i + 12;
+    var test bool := true;
+    return ret;
+}
+
+func main() int {
+    var a int := 0-7;
+    var b float := testfunc(5.0 + a);
+    print(b);
+    var c float := 2.3 / 5.0 + 15;
+    print(c);
+    return 0;
 }

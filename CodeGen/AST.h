@@ -109,8 +109,6 @@ namespace GA {
             class FunctionASTNode : public DefaultASTNode {
             private:
                 ASTResult generateThisCode(IRGenerator& context);
-                llvm::AllocaInst *createEntryBlockAlloca(llvm::Function* funct,
-                    const std::string &varName, llvm::Type* type);
             public:
                 explicit FunctionASTNode(const std::string& astRep);
                 FunctionASTNode(const FunctionASTNode& source)=delete;

@@ -15,9 +15,9 @@ GA::Compiler::Compiler( std::istream& productionSource )
 
 void GA::Compiler::Compile(std::istream &source) {
 	std::thread lexThread( &Lexing::Lexer::Feed, mLexer, std::ref( source ) );
-    lexThread.join();
-	std::thread parseThread(&Parsing::Parser::Run, mParser);
+    std::thread parseThread(&Parsing::Parser::Run, mParser);
 
+    lexThread.join();
     parseThread.join();
 
     if(mAST == nullptr)
