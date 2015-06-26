@@ -9,7 +9,7 @@ GA::Compiler::Compiler( std::istream& productionSource )
 	: mTokens(), mIdentifierTable(), mAST(nullptr),
       mProductionLib( productionSource ), mLLVMContext(),
       mLexer(&mTokens, &mIdentifierTable), mParser(&mTokens, &mIdentifierTable, &mAST, &mProductionLib),
-      mIRGen(&mLLVMContext ){
+      mIRGen(&mLLVMContext, &mIdentifierTable ){
 
 }
 

@@ -66,8 +66,11 @@ GA::CodeGen::ASTNode* GA::Parsing::RecursiveDescentProduction::Read( Lexing::Tok
 	CodeGen::ASTNode* result = nullptr;
     if(mASTRep[0] == '2')
         result = new CodeGen::AST::BinOpASTNode( mASTRep );
+    else if(mASTRep == "Variable")
+        result = new CodeGen::AST::VariableASTNode( mASTRep );
     else
         result = new CodeGen::AST::DefaultASTNode( mASTRep );
+
 	size_t i = 0;
 	if (hint != nullptr)
 	{
@@ -157,10 +160,13 @@ std::vector<const GA::Parsing::Production *> GA::Parsing::TokenProduction::FitsI
 GA::CodeGen::ASTNode* GA::Parsing::TokenProduction::Read( Lexing::TokenStream& input, const ProductionLibrary* library,
 	std::vector<const Production*>* hint ) const
 {
+    using GA::Lexing::Token;
 	auto token = input.Get();
 	switch (token->GetType()) {
 		case GA::Lexing::Token::TYPE::FLOATVAL:
 			return new CodeGen::AST::FPLiteralASTNode( token->GetFloatValue() );
+        case Token::TYPE::MATHEMATICALOP:
+            return new CodeGen::AST::OperatorASTNode( token->GetMathOp() );
         default:
             break;
 	}

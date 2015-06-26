@@ -67,6 +67,24 @@ namespace GA {
                 virtual llvm::Value* GenerateCode(IRGenerator& context) override;
                 GA::Lexing::Token::MathOperation GetOp() const;
             };
+            class IdentifierASTNode : public ASTNode {
+                size_t mIdentifierId;
+            public:
+                explicit IdentifierASTNode(size_t identifierId);
+                IdentifierASTNode(const IdentifierASTNode& source) = delete;
+
+                virtual std::string GetASTRep() override;
+                virtual llvm::Value* GenerateCode(IRGenerator& context) override;
+                size_t GetId() const;
+            };
+            class VariableASTNode : public DefaultASTNode {
+            public:
+                explicit VariableASTNode(const std::string& astRep);
+                VariableASTNode(const VariableASTNode& source) = delete;
+
+                virtual llvm::Value* GenerateCode(IRGenerator& context) override;
+
+            };
         }
 	}
 }

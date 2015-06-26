@@ -4,8 +4,9 @@
 
 #include "IRGenerator.h"
 
-GA::CodeGen::IRGenerator::IRGenerator(llvm::LLVMContext *llvmContext)
-    : mBuilder(*llvmContext), mLLVMContext(llvmContext), mSymbolTable() {
+GA::CodeGen::IRGenerator::IRGenerator(llvm::LLVMContext *llvmContext, GA::Lexing::IdentifierTable* identifierTable)
+    : mBuilder(*llvmContext), mLLVMContext(llvmContext), mModule("GoFile", *llvmContext),
+      mIdentifierTable(identifierTable), mSymbolTable() {
 
 }
 
@@ -23,4 +24,12 @@ llvm::LLVMContext *GA::CodeGen::IRGenerator::GetLLVMContext() {
 
 void GA::CodeGen::IRGenerator::Build(GA::CodeGen::ASTNode *ast) {
     ast->GenerateCode(*this);
+}
+
+llvm::Module *GA::CodeGen::IRGenerator::GetModule() {
+    return &mModule;
+}
+
+GA::Lexing::IdentifierTable *GA::CodeGen::IRGenerator::GetIdTable() {
+    return mIdentifierTable;
 }

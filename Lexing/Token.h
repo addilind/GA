@@ -32,7 +32,7 @@ namespace GA {
             std::string GetSource() const;
 			virtual bool operator==(const Token& other) const;
 
-			size_t GetSymbolEntry() const;
+			size_t GetIdEntry() const;
 			MathOperation GetMathOp() const;
 			Keyword GetKeyword() const;
 			long GetIntValue() const;
@@ -49,7 +49,7 @@ namespace GA {
             IdentifierToken(size_t symbolEntry);
             IdentifierToken(size_t symbolEntry, const std::string &source);
             virtual ~IdentifierToken();
-			size_t GetSymbolEntry() const;
+			size_t GetIdEntry() const;
 			virtual std::string ToString() const override;
 			virtual bool operator==(const Token& other) const override;
         };

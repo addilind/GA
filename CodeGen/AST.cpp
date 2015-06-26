@@ -67,6 +67,11 @@ namespace GA {
                             left = generateIntOp(static_cast<OperatorASTNode *>(mChildren.at(operation))->GetOp(),
                                                  left, right, context);
                             break;
+                        case Lexing::Token::TYPE::BOOLVAL:
+                            left = generateBoolOp(static_cast<OperatorASTNode *>(mChildren.at(operation))->GetOp(),
+                                                 left, right, context);
+                            break;
+
                         default:
                             throw std::runtime_error("invalid operand types!");
                     }
@@ -205,7 +210,7 @@ namespace GA {
                     case Token::MathOperation::GreaterEqual:
                         return context.GetBuilder()->CreateICmpSGE(left, right, "intgreatereq");
                     default:
-                        throw std::runtime_error("Unpredicted MathOperator " + GetASTRep());
+                        throw std::runtime_error("Unpredicted MathOperator for integer values" + GetASTRep());
                 }
             }
 
@@ -217,8 +222,54 @@ namespace GA {
                     case Token::MathOperation::NotEqual:
                         return context.GetBuilder()->CreateICmpNE(left, right, "boolnotequals");
                     default:
-                        throw std::runtime_error("Unpredicted MathOperator " + GetASTRep());
+                        throw std::runtime_error("Unpredicted MathOperator for boolean values " + GetASTRep());
                 }
+            }
+
+            VariableASTNode::VariableASTNode(const std::string &astRep)
+                : DefaultASTNode(astRep){
+            }
+
+            llvm::Value *VariableASTNode::GenerateCode(IRGenerator &context) {
+                if(mChildren.size() == 1) { //Simple variable
+                    return nullptr;
+                }
+                else { //Function call
+                    std::string name = context.GetIdTable()->Get(
+                            static_cast<IdentifierASTNode*>(mChildren[0])->GetId()
+                        )->GetName();
+                    llvm::Function *CalleeF = context.GetModule()->getFunction(name);
+                    if (CalleeF == 0)
+                        throw std::runtime_error("Unknown function "+name+" called!");
+
+                    // If argument mismatch error.
+                    if (CalleeF->arg_size() != mChildren.size() - 3) //Id, (, )
+                        throw std::runtime_error("Incorrect number of arguments passed");
+
+                    std::vector<llvm::Value*> ArgsV;
+                    for (unsigned i = 2, e = mChildren.size() - 3; i != e; ++i) {
+                        ArgsV.push_back(mChildren[i]->GenerateCode(context));
+                        if (ArgsV.back() == 0) return 0;
+                    }
+
+                    return context.GetBuilder()->CreateCall(CalleeF, ArgsV, "functioncall");
+                }
+            }
+
+            IdentifierASTNode::IdentifierASTNode(size_t identifierId) : mIdentifierId(identifierId) {
+
+            }
+
+            std::string IdentifierASTNode::GetASTRep() {
+                return "Identifier "+std::to_string(mIdentifierId);
+            }
+
+            llvm::Value *IdentifierASTNode::GenerateCode(IRGenerator &context) {
+                return nullptr;
+            }
+
+            size_t IdentifierASTNode::GetId() const {
+                return mIdentifierId;
             }
         }
 

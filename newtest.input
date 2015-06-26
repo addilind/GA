@@ -1,3 +1,5 @@
+func printf(outp string);
+
 func isEven(i int) bool {
     var ret bool := false;
     if i >= 2 {
@@ -5,7 +7,7 @@ func isEven(i int) bool {
     } else {
         var half int := i * 2.0;
         var full int := 2;
-        if full {
+        if full > true {
             var ret bool := true;
         }
     }
@@ -13,6 +15,6 @@ func isEven(i int) bool {
 }
 
 func main() {
-	abc / 5 - 7;
-    hallo(abc * (5 - 7) );
+    var abc int := 0-1;
+    isEven(abc * (5 - 7) );
 }

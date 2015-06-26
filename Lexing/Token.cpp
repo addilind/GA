@@ -30,7 +30,7 @@ GA::Lexing::IdentifierToken::IdentifierToken(size_t symbolEntry, const std::stri
 GA::Lexing::IdentifierToken::~IdentifierToken() {}
 
 
-size_t GA::Lexing::IdentifierToken::GetSymbolEntry() const {
+size_t GA::Lexing::IdentifierToken::GetIdEntry() const {
     return mSymbolEntry;
 }
 
@@ -82,10 +82,10 @@ double GA::Lexing::FloatValToken::GetFloatValue() const {
     return mValue;
 }
 
-size_t GA::Lexing::Token::GetSymbolEntry() const{
+size_t GA::Lexing::Token::GetIdEntry() const{
     if(mType != TYPE::IDENTIFIER)
-        throw std::runtime_error("Tried to GetSymbolEntry() on non identifier token!");
-	return static_cast<IdentifierToken const*>(this)->GetSymbolEntry();
+        throw std::runtime_error("Tried to GetIdEntry() on non identifier token!");
+	return static_cast<IdentifierToken const *>(this)->GetIdEntry();
 }
 
 GA::Lexing::Token::MathOperation GA::Lexing::Token::GetMathOp() const {
@@ -165,7 +165,7 @@ bool GA::Lexing::IdentifierToken::operator==(const Token& other) const
 {
 	if (other.GetType() != mType)
 		return false;
-	return other.GetSymbolEntry() == mSymbolEntry;
+	return other.GetIdEntry() == mSymbolEntry;
 }
 
 std::string GA::Lexing::MathematicalOpToken::ToString() const {

@@ -42,8 +42,8 @@ E3 Variable id IDTAIL #
 E3 -Number num #
 E3 -StringLit str #
 E3 -Bool bool #
-IDTAIL CallParams ( PARA ) #
-IDTAIL VarLookup #
+IDTAIL -CallParams ( PARA ) #
+IDTAIL -VarLookup #
 PARA FirstParam C PARA2 #
 PARA NoParams #
 PARA2 ParaConcat , C PARA2 #
