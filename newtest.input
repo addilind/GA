@@ -1,4 +1,5 @@
-func printf(outp string);
+func printf(outp string , format string);
+func printf( ) int;
 
 func isEven(i int) bool {
     var ret bool := false;

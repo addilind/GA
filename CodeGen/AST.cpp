@@ -22,38 +22,26 @@ namespace GA {
         }
 
         namespace AST {
-            DefaultASTNode::DefaultASTNode(const std::string &astRep) : mASTRep(astRep) { };
+
+            DefaultASTNode::DefaultASTNode(const std::string &astRep) : ASTNode(TYPE::Default), mASTRep(astRep) { };
 
             std::string DefaultASTNode::GetASTRep() { return mASTRep; };
 
-            llvm::Value *DefaultASTNode::GenerateCode(IRGenerator &context) {
+            ASTResult DefaultASTNode::GenerateCode(IRGenerator &context) {
                 if (mChildren.size() == 1)
                     return mChildren[0]->GenerateCode(context);
-                return nullptr;
+                return static_cast<llvm::Value*>(nullptr);
             }
 
-            FPLiteralASTNode::FPLiteralASTNode(const double &val)
-                    : mVal(val) {
-
-            }
-
-            std::string FPLiteralASTNode::GetASTRep() {
-                return "Float value: " + std::to_string(mVal);
-            }
-
-            llvm::Value *FPLiteralASTNode::GenerateCode(IRGenerator &context) {
-                return llvm::ConstantFP::get(*context.GetLLVMContext(), llvm::APFloat(mVal));
-            }
-
-            llvm::Value *BinOpASTNode::GenerateCode(IRGenerator &context) {
+            ASTResult BinOpASTNode::GenerateCode(IRGenerator &context) {
                 using GA::Lexing::Token;
 
                 if (mChildren.size() < 1 || mChildren.size() % 2 != 1)
                     throw std::runtime_error("Unable to generate code for Binary operation with "
                                              + std::to_string(mChildren.size()) + " children! @ " + GetASTRep());
-                llvm::Value *left = mChildren[0]->GenerateCode(context);
+                llvm::Value *left = mChildren[0]->GenerateCode(context).getVal();
                 for (size_t operation = 1U; operation + 1 < mChildren.size(); ++operation) {
-                    llvm::Value *right = mChildren.at(operation + 1)->GenerateCode(context);
+                    llvm::Value *right = mChildren.at(operation + 1)->GenerateCode(context).getVal();
                     if (left == nullptr || right == nullptr)
                         throw std::runtime_error("Binary op with null op @ " + GetASTRep());
 
@@ -81,11 +69,11 @@ namespace GA {
 
             BinOpASTNode::BinOpASTNode(const std::string &astRep)
                     : DefaultASTNode(astRep) {
-
+                mType = TYPE::BinaryOp;
             }
 
             OperatorASTNode::OperatorASTNode(GA::Lexing::Token::MathOperation mathOp)
-                    : mOp(mathOp) {
+                    : ASTNode(TYPE::MathOp), mOp(mathOp) {
 
             }
 
@@ -118,8 +106,8 @@ namespace GA {
                 }
             }
 
-            llvm::Value *OperatorASTNode::GenerateCode(IRGenerator &context) {
-                return nullptr;
+            ASTResult OperatorASTNode::GenerateCode(IRGenerator &context) {
+                return static_cast<llvm::Value*>(nullptr);
             }
 
             GA::Lexing::Token::MathOperation OperatorASTNode::GetOp() const {
@@ -228,11 +216,12 @@ namespace GA {
 
             VariableASTNode::VariableASTNode(const std::string &astRep)
                 : DefaultASTNode(astRep){
+                mType = TYPE::Variable;
             }
 
-            llvm::Value *VariableASTNode::GenerateCode(IRGenerator &context) {
+            ASTResult VariableASTNode::GenerateCode(IRGenerator &context) {
                 if(mChildren.size() == 1) { //Simple variable
-                    return nullptr;
+                    return static_cast<llvm::Value*>(nullptr);
                 }
                 else { //Function call
                     std::string name = context.GetIdTable()->Get(
@@ -247,16 +236,18 @@ namespace GA {
                         throw std::runtime_error("Incorrect number of arguments passed");
 
                     std::vector<llvm::Value*> ArgsV;
-                    for (unsigned i = 2, e = mChildren.size() - 3; i != e; ++i) {
-                        ArgsV.push_back(mChildren[i]->GenerateCode(context));
-                        if (ArgsV.back() == 0) return 0;
+                    for (unsigned i = 2, e = (mChildren.size() - 3); i != e; ++i) {
+                        ArgsV.push_back(mChildren[i]->GenerateCode(context).getVal());
+                        if (ArgsV.back() == nullptr)
+                            throw std::runtime_error("Cannot generate function parameter");
                     }
 
                     return context.GetBuilder()->CreateCall(CalleeF, ArgsV, "functioncall");
                 }
             }
 
-            IdentifierASTNode::IdentifierASTNode(size_t identifierId) : mIdentifierId(identifierId) {
+            IdentifierASTNode::IdentifierASTNode(size_t identifierId) : ASTNode(TYPE::Identifier),
+                                                                        mIdentifierId(identifierId) {
 
             }
 
@@ -264,12 +255,164 @@ namespace GA {
                 return "Identifier "+std::to_string(mIdentifierId);
             }
 
-            llvm::Value *IdentifierASTNode::GenerateCode(IRGenerator &context) {
-                return nullptr;
+            ASTResult IdentifierASTNode::GenerateCode(IRGenerator &context) {
+                return static_cast<llvm::Value*>(nullptr);
             }
 
             size_t IdentifierASTNode::GetId() const {
                 return mIdentifierId;
+            }
+
+            FunctionASTNode::FunctionASTNode(const std::string &astRep) : DefaultASTNode(astRep) {
+                mType = TYPE::Function;
+            }
+
+            ASTResult FunctionASTNode::GenerateCode(IRGenerator &context) {
+                if(mChildren.size() < 5) // func <Name> ( )
+                    throw std::runtime_error("Function declaration with not enough childnodes");
+                //0: func keyword
+                std::string name = context.GetIdTable()->Get(
+                        static_cast<IdentifierASTNode*>(mChildren[1])->GetId()
+                )->GetName();
+
+                if(mChildren[2]->GetType() != TYPE::Token ||
+                        static_cast<TokenASTNode*>(mChildren[2])->GetToken()->GetType() != Token::TYPE::OPENPARENTHESIS)
+                    throw std::runtime_error("Expected parameter block parenthesis");
+
+                std::vector<llvm::Type*> arguments;
+                size_t i = 3;
+                for(; i<mChildren.size(); ++i) {
+                    auto nparamid = mChildren.at(i);
+                    if(nparamid->GetType() == TYPE::Token &&
+                            static_cast<TokenASTNode*>(nparamid)->GetToken()->GetType() == Token::TYPE::CLOSEPARENTHESIS)
+                        break;
+                    if(nparamid->GetType() != TYPE::Identifier)
+                        throw std::runtime_error("Expected Identifier in function parameter declaration");
+                    auto paramid = static_cast<IdentifierASTNode*>(nparamid)->GetId();
+                    ++i;
+                    auto nparamtype = mChildren.at(i);
+                    if(nparamtype->GetType() != TYPE::ValType)
+                        throw std::runtime_error("Expected Value type in function parameter declaration");
+                    llvm::Type* paramtype = static_cast<TypeASTNode*>(nparamtype)->GetLLVMType(context);
+                    arguments.push_back(paramtype);
+                    ++i;
+                    auto nsep = mChildren.at(i);
+                    if(nsep->GetType() != TYPE::Token)
+                        throw std::runtime_error("Expected seperator token in function parameter declaration");
+                    if(static_cast<TokenASTNode*>(nsep)->GetToken()->GetType() == GA::Lexing::Token::TYPE::CLOSEPARENTHESIS)
+                        break;
+                    if(static_cast<TokenASTNode*>(nsep)->GetToken()->GetType() != GA::Lexing::Token::TYPE::COMMA)
+                        throw std::runtime_error("Invalid parameter block, expected comma!");
+                }
+                ++i;
+
+                auto nfunctype = mChildren.at(i);
+                if(nfunctype->GetType() != TYPE::FunctionType)
+                    throw std::runtime_error("expected function type");
+                auto returntype = static_cast<FunctionTypeASTNode*>(nfunctype)->GetReturnType(context);
+                llvm::FunctionType *functiontype = llvm::FunctionType::get(returntype,
+                                                     arguments, false);
+
+                return llvm::Function::Create(functiontype, llvm::Function::ExternalLinkage,
+                                              name, context.GetModule());
+            }
+
+            ASTResult::ASTResult(llvm::Value *val) {
+                Value = val;
+                Type = TYPE::TValue;
+            }
+
+            ASTResult::ASTResult(llvm::Function *func) {
+                Function = func;
+                Type = TYPE::TFunction;
+            }
+
+            llvm::Value *ASTResult::getVal() {
+                if(Type != TValue)
+                    throw std::runtime_error("Tried to use somthing as value");
+                return Value;
+            }
+
+            llvm::Function *ASTResult::getFunction() {
+                if (Type != TFunction)
+                    throw std::runtime_error("Tried to use somthing as function");
+                return Function;
+            }
+
+            TypeASTNode::TypeASTNode(Lexing::Token::ValType type)
+                : DefaultASTNode("Type"), mValType(type){
+                mType = TYPE::ValType;
+            }
+
+            ASTResult TypeASTNode::GenerateCode(IRGenerator &context) {
+                return static_cast<llvm::Value*>(nullptr);
+            }
+
+            Lexing::Token::ValType TypeASTNode::GetValType() {
+                return mValType;
+            }
+
+            llvm::Type *TypeASTNode::GetLLVMType(IRGenerator& context) {
+                switch (mValType) {
+                    case Lexing::Token::ValType::Float:
+                        return llvm::Type::getDoubleTy(*context.GetLLVMContext());
+                    case Lexing::Token::ValType::Int:
+                        return llvm::Type::getInt64Ty(*context.GetLLVMContext());
+                    case Lexing::Token::ValType::Bool:
+                        return llvm::Type::getInt1Ty(*context.GetLLVMContext());
+                    default:
+                        throw std::runtime_error("Unsupported type");
+                }
+            }
+
+            TokenASTNode::TokenASTNode(std::shared_ptr<Lexing::Token> &val)
+            :ASTNode(TYPE::Token), mVal(val){
+
+            }
+
+            std::string TokenASTNode::GetASTRep() {
+                return "TokenAST: " + mVal->ToString();
+            }
+
+            ASTResult TokenASTNode::GenerateCode(IRGenerator &context) {
+                return static_cast<llvm::Value*>(nullptr);
+            }
+
+            Lexing::Token *TokenASTNode::GetToken() {
+                return mVal.get();
+            }
+
+            FunctionTypeASTNode::FunctionTypeASTNode(FunctionTypeASTNode::FUNCTYPE type)
+                : DefaultASTNode("FunctionType"), mFuncType(type){
+                mType = TYPE::FunctionType;
+            }
+
+            ASTResult FunctionTypeASTNode::GenerateCode(IRGenerator &context) {
+                return static_cast<llvm::Value*>(nullptr);
+            }
+
+            FunctionTypeASTNode::FUNCTYPE FunctionTypeASTNode::GetFuncType() {
+                if(mFuncType == FUNCTYPE::RetDef && mChildren.size() > 2)
+                    mFuncType = FUNCTYPE::RetDecl;
+                return mFuncType;
+            }
+
+            llvm::Type *FunctionTypeASTNode::GetReturnType(IRGenerator& context) {
+                switch(mFuncType){
+                    case FUNCTYPE::VoidDef:
+                    case FUNCTYPE::VoidDecl:
+                        return nullptr;
+                    case FUNCTYPE::RetDecl:
+                    case FUNCTYPE::RetDef:
+                    {
+                        auto typeToken = mChildren.at(0);
+                        if(typeToken->GetType() != TYPE::ValType)
+                            throw std::runtime_error("Expected function return type!");
+                        return static_cast<TypeASTNode*>(typeToken)->GetLLVMType(context);
+                    }
+                    default:
+                        throw std::runtime_error("Invalid Function Type");
+                }
             }
         }
 
@@ -280,6 +423,10 @@ namespace GA {
 
         void ASTNode::AddChild(ASTNode *child) {
             mChildren.push_back(child);
+        }
+
+        ASTNode::TYPE ASTNode::GetType() {
+            return mType;
         }
     }
 }

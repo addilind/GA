@@ -9,12 +9,31 @@
 namespace GA {
 	namespace CodeGen {
         class IRGenerator;
-		class ASTNode {
+        namespace AST {
+            struct ASTResult {
+                enum TYPE {
+                    TValue, TFunction
+                };
+                union {
+                    llvm::Value *Value;
+                    llvm::Function *Function;
+                };
+                TYPE Type;
+                ASTResult(llvm::Value *val);
+                ASTResult(llvm::Function *func);
+                llvm::Value *getVal();
+                llvm::Function *getFunction();
+            };
+        }
+        class ASTNode {
+        public:
+            enum TYPE { Default, Token, BinaryOp, MathOp, Identifier, Variable, Function, FunctionType, ValType };
 		protected:
 			std::vector<ASTNode*> mChildren;
-		public:
+            TYPE mType;
+        public:
             virtual ~ASTNode() {};
-			inline explicit ASTNode( ) {};
+			inline explicit ASTNode( TYPE type ) : mType(type) {};
 
 			ASTNode( const ASTNode &source ) = delete;
 
@@ -22,7 +41,8 @@ namespace GA {
 			void AddChild( ASTNode* child );
             void AddMerge( ASTNode* source );
 			virtual void Print(int indent = 0);
-			virtual llvm::Value* GenerateCode(IRGenerator& context) = 0;
+			virtual AST::ASTResult GenerateCode(IRGenerator& context) = 0;
+            TYPE GetType();
 		};
 		namespace AST {
 			class DefaultASTNode : public ASTNode {
@@ -33,17 +53,19 @@ namespace GA {
 				DefaultASTNode(const DefaultASTNode &source) = delete;
 
 				virtual std::string GetASTRep() override;
-                virtual llvm::Value* GenerateCode(IRGenerator& context) override;
+                virtual ASTResult GenerateCode(IRGenerator& context) override;
 			};
-            class FPLiteralASTNode : public ASTNode {
-                double mVal;
+            class TokenASTNode : public ASTNode {
+                std::shared_ptr<Lexing::Token> mVal;
             public:
-                explicit FPLiteralASTNode(const double &val);
+                explicit TokenASTNode(std::shared_ptr<Lexing::Token> &val);
 
-                FPLiteralASTNode(const FPLiteralASTNode &source) = delete;
+                TokenASTNode(const TokenASTNode &source) = delete;
 
                 virtual std::string GetASTRep() override;
-                virtual llvm::Value* GenerateCode(IRGenerator& context) override;
+                virtual ASTResult GenerateCode(IRGenerator& context) override;
+                Lexing::Token* GetToken();
+
             };
             class BinOpASTNode : public DefaultASTNode {
                 Lexing::Token::TYPE matchOperandTypes(llvm::Value*& left, llvm::Value*& right, IRGenerator& context);
@@ -55,7 +77,7 @@ namespace GA {
 
                 BinOpASTNode(const BinOpASTNode &source) = delete;
 
-                virtual llvm::Value* GenerateCode(IRGenerator& context) override;
+                virtual ASTResult GenerateCode(IRGenerator& context) override;
             };
             class OperatorASTNode : public ASTNode {
             GA::Lexing::Token::MathOperation mOp;
@@ -64,7 +86,7 @@ namespace GA {
                 OperatorASTNode(const OperatorASTNode& source) = delete;
 
                 virtual std::string GetASTRep() override;
-                virtual llvm::Value* GenerateCode(IRGenerator& context) override;
+                virtual ASTResult GenerateCode(IRGenerator& context) override;
                 GA::Lexing::Token::MathOperation GetOp() const;
             };
             class IdentifierASTNode : public ASTNode {
@@ -74,7 +96,7 @@ namespace GA {
                 IdentifierASTNode(const IdentifierASTNode& source) = delete;
 
                 virtual std::string GetASTRep() override;
-                virtual llvm::Value* GenerateCode(IRGenerator& context) override;
+                virtual ASTResult GenerateCode(IRGenerator& context) override;
                 size_t GetId() const;
             };
             class VariableASTNode : public DefaultASTNode {
@@ -82,8 +104,34 @@ namespace GA {
                 explicit VariableASTNode(const std::string& astRep);
                 VariableASTNode(const VariableASTNode& source) = delete;
 
-                virtual llvm::Value* GenerateCode(IRGenerator& context) override;
-
+                virtual ASTResult GenerateCode(IRGenerator& context) override;
+            };
+            class FunctionASTNode : public DefaultASTNode {
+            public:
+                explicit FunctionASTNode(const std::string& astRep);
+                FunctionASTNode(const FunctionASTNode& source)=delete;
+                virtual ASTResult GenerateCode(IRGenerator& context) override;
+            };
+            class TypeASTNode : public DefaultASTNode {
+                Lexing::Token::ValType mValType;
+            public:
+                explicit TypeASTNode(Lexing::Token::ValType type);
+                TypeASTNode(const TypeASTNode& source) = delete;
+                virtual ASTResult GenerateCode(IRGenerator& context) override;
+                Lexing::Token::ValType GetValType();
+                llvm::Type* GetLLVMType(IRGenerator& context);
+            };
+            class FunctionTypeASTNode : public DefaultASTNode {
+            public:
+                enum FUNCTYPE { VoidDecl, RetDecl, VoidDef, RetDef};
+            private:
+                FUNCTYPE mFuncType;
+            public:
+                explicit FunctionTypeASTNode(FUNCTYPE type);
+                FunctionTypeASTNode(const FunctionTypeASTNode& source) = delete;
+                virtual ASTResult GenerateCode(IRGenerator& context) override;
+                FUNCTYPE GetFuncType();
+                llvm::Type* GetReturnType(IRGenerator& context);
             };
         }
 	}

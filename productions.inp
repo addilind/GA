@@ -1,15 +1,16 @@
-S S0 P P0 D V I I0 I1 A E E0 E1 E2 E3 IDTAIL PARA PARA2 C C0 SC
+S S0 P P0 D D0 V I I0 I1 A E E0 E1 E2 E3 IDTAIL PARA PARA2 C C0 SC
 S Function func id ( P ) D S0 #
 S0 -FunctionConcat S #
 S0 -FunctionConcatEnd #
-P FunctionParams id type P0 #
-P NoFunctionParam #
+P -FunctionParams id type P0 #
+P -NoFunctionParam #
 P0 -FunctionParamConcat , P #
 P0 -FunctionParamsEnd #
-D ReturningFuncBody type { V return C ; } ##
+D ReturningFunc type D0 #
+D0 -ReturningFuncBody { V return C ; } ##
+D0 -ReturningFuncProtoype ; #
 D FuncBody { V } ##
-D ReturningFunctionPrototype type ; #
-D VoidFunctionPrototype ; #
+D VoidFuncPrototype ; #
 V IFInstruction if I V #
 V AssignInstruction A ; V #
 V InstructionsEnd #
@@ -44,7 +45,7 @@ E3 -StringLit str #
 E3 -Bool bool #
 IDTAIL -CallParams ( PARA ) #
 IDTAIL -VarLookup #
-PARA FirstParam C PARA2 #
-PARA NoParams #
-PARA2 ParaConcat , C PARA2 #
-PARA2 ParaEnd #
+PARA -FirstParam C PARA2 #
+PARA -NoParams #
+PARA2 -ParaConcat , C PARA2 #
+PARA2 -ParaEnd #

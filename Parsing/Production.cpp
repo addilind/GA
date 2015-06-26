@@ -68,6 +68,14 @@ GA::CodeGen::ASTNode* GA::Parsing::RecursiveDescentProduction::Read( Lexing::Tok
         result = new CodeGen::AST::BinOpASTNode( mASTRep );
     else if(mASTRep == "Variable")
         result = new CodeGen::AST::VariableASTNode( mASTRep );
+	else if(mASTRep == "Function")
+		result = new CodeGen::AST::FunctionASTNode( mASTRep );
+    else if(mASTRep == "FuncBody")
+        result = new CodeGen::AST::FunctionTypeASTNode(CodeGen::AST::FunctionTypeASTNode::FUNCTYPE::VoidDef);
+    else if(mASTRep == "VoidFuncPrototype")
+        result = new CodeGen::AST::FunctionTypeASTNode(CodeGen::AST::FunctionTypeASTNode::FUNCTYPE::VoidDecl);
+    else if(mASTRep == "ReturningFunc")
+        result = new CodeGen::AST::FunctionTypeASTNode(CodeGen::AST::FunctionTypeASTNode::FUNCTYPE::RetDef);
     else
         result = new CodeGen::AST::DefaultASTNode( mASTRep );
 
@@ -163,14 +171,16 @@ GA::CodeGen::ASTNode* GA::Parsing::TokenProduction::Read( Lexing::TokenStream& i
     using GA::Lexing::Token;
 	auto token = input.Get();
 	switch (token->GetType()) {
-		case GA::Lexing::Token::TYPE::FLOATVAL:
-			return new CodeGen::AST::FPLiteralASTNode( token->GetFloatValue() );
         case Token::TYPE::MATHEMATICALOP:
             return new CodeGen::AST::OperatorASTNode( token->GetMathOp() );
+        case Token::TYPE::IDENTIFIER:
+            return new CodeGen::AST::IdentifierASTNode(token->GetIdEntry());
+        case Token::TYPE::VALTYPE:
+            return new CodeGen::AST::TypeASTNode(token->GetValType());
         default:
             break;
 	}
-	return new CodeGen::AST::DefaultASTNode( token->ToString() );
+	return new CodeGen::AST::TokenASTNode( token );
 }
 
 bool GA::Parsing::Production::GetNewScope() const {

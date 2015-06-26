@@ -44,6 +44,9 @@ void GA::Lexing::Lexer::Feed(std::istream &input) {
                 case ';':
 					readStatementEnd( in, sourceinfo );
                     continue;
+                case ',':
+                    readComma( in, sourceinfo );
+                    continue;
                 case '(':
                 case ')':
 				case '{':
@@ -247,7 +250,7 @@ void GA::Lexing::Lexer::readString(std::istream& input, const std::string& sourc
 	char quoteChar = 0;
 	input >> ( quoteChar );
 	if (quoteChar != '"')
-		throw std::runtime_error( "Lexer: Tried to read parenthesis, but next in stream is no parenthesis!" );
+		throw std::runtime_error( "Lexer: Tried to read quotes, but next in stream is no quotes!" );
 
 	std::wstringstream buf;
 	bool escape = false;
@@ -328,4 +331,12 @@ bool GA::Lexing::Lexer::checkKeyword(const std::string& id, const std::string& s
 		return true;
 	}
 	return false;
+}
+
+void GA::Lexing::Lexer::readComma(std::istream &input, const std::string &sourceinfo) {
+    char eosChar = 0;
+    input >> ( eosChar );
+    if(eosChar != ',')
+        throw std::runtime_error("Lexer: Tried to read comma, but next in stream is no semicolon!");
+    push( TPtr( new Token( Token::TYPE::COMMA, sourceinfo ) ) );
 }
